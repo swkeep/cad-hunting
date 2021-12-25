@@ -1,3 +1,6 @@
+	-- Not fully functional
+
+
 	-- ADD THESE LINES IN qb-core/shared.lua
 	-- UNDER ITEMS SECTION
 
