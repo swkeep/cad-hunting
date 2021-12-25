@@ -3,9 +3,8 @@ games { 'gta5' }
 
 author "Cadburry#7547"
 
-shared_script "@qb-core/import.lua"
-
-client_script 'cl_main.lua'
-server_script 'sv_sell.lua'
-server_script 'sv_main.lua'
+client_script 'client/cl_main.lua'
+shared_script "@qb-core/shared.lua"
+shared_script 'config.lua'
+server_script 'server/sv_main.lua'
 
