@@ -1,4 +1,8 @@
-	-- Not fully functional Qbcore
+
+# Qbcore Hunting
+	
+* [original author] (https://github.com/cadburry6969/)
+* [original project] (https://github.com/cadburry6969/cad-hunting)
 	
 # Dependencies
 
