@@ -1,13 +1,13 @@
 	-- Not fully functional Qbcore
 	
-	# Dependencies
+# Dependencies
 
 	* [qb-target](https://github.com/BerkieBb/qb-target)
 	* [qbcore framework](https://github.com/qbcore-framework) 
 	* [qbcore inventory](https://github.com/qbcore-framework/qb-inventory) 
 
 
-	# Installation
+# Installation
 	-- Add images to qb-invetory/html/images 
 	-- Add these codes to qb-core/shared.lua
 	-- Under "ITEMS" section
