@@ -6,18 +6,13 @@ local CoreName = exports['qb-core']:GetCoreObject()
 -- ============================
 --      FUNCTIONS
 -- ============================
-function SellingBlips(coord)
+function SellingBlips()
+    createCustomBlips("normal", Config.SellSpots)
     for _, v in pairs(Config.SellSpots) do
-        -- create Blips
-        local blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
-        SetBlipSprite(blip, 141)
-        SetBlipDisplay(blip, 4)
-        SetBlipScale(blip, 0.6)
-        SetBlipColour(blip, 49)
-        SetBlipAsShortRange(blip, true)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("Sell Meat")
-        EndTextCommandSetBlipName(blip)
+        -- spwan seller npcs
+        exports['qb-target']:SpawnPed({
+            [_] = v.SellerNpc
+        })
 
         -- init qb-target for sellers
         exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
@@ -28,11 +23,41 @@ function SellingBlips(coord)
             }},
             distance = 2.5
         })
+    end
+    createCustomBlips("area", Config.HuntingArea)
+end
 
-        -- spwan seller npcs
-        exports['qb-target']:SpawnPed({
-            [_] = v.SellerNpc
-        })
+function createCustomBlips(type, data)
+    for _, v in pairs(data) do
+        -- create Blips
+        local blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
+
+        SetBlipAsShortRange(blip, true)
+        if type == "area" then
+            SetBlipSprite(blip, 141)
+
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString(v.name)
+            EndTextCommandSetBlipName(blip)
+            RadiusBlip = AddBlipForRadius(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z, v.radius)
+            SetBlipRotation(RadiusBlip, 0)
+            SetBlipColour(RadiusBlip, 4)
+            SetBlipAlpha(RadiusBlip, 64)
+
+            local CircleZone = CircleZone:Create(vector3(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z),  v.radius, {
+                name="circle_zone",
+                debugPoly=true,
+            })
+        else
+            SetBlipSprite(blip, 442)
+
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString("Sell Meat")
+            EndTextCommandSetBlipName(blip)
+        end
+        SetBlipDisplay(blip, 4)
+        SetBlipScale(blip, 0.6)
+        SetBlipColour(blip, 49)
     end
 end
 
@@ -77,9 +102,8 @@ function loadAnimDict(dict)
 end
 
 Citizen.CreateThread(function()
-    local player = PlayerPedId()
-    local coord = GetEntityCoords(player)
-    SellingBlips(coord)
+    Wait(7)
+    SellingBlips()
     initAnimalsTargting()
     Wait(200)
 end)
@@ -104,7 +128,7 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
                     disableCombat = true
                 }, {}, {}, {}, function()
                     ClearPedTasks(GetPlayerPed(-1))
-                    TriggerServerEvent('cad-hunting:server:AddItem', animal , entity)
+                    TriggerServerEvent('cad-hunting:server:AddItem', animal, entity)
                     Citizen.Wait(100)
                     DeleteEntity(entity)
                 end)
