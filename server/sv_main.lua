@@ -28,18 +28,18 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
 
     for _, v in pairs(Config.Animals) do
         if v.model == data.model then
-            -- check if another player already buch animal or not
+            -- check if another player already slaughter animal or not
             if animalsEnity ~= nil then
-                local isAleadyBuched = false
+                local isAleadyslaughtered = false
                 for _, v in pairs(animalsEnity) do
                     if v == entity then
                         TriggerClientEvent('QBCore:Notify', _source,
-                            "Someone already buched this animal!")
+                            "Someone already slaughtered this animal!")
                         TriggerClientEvent('cad-hunting:client:ForceRemoveAnimalEntity', _source, entity)
-                        isAleadyBuched = true
+                        isAleadyslaughtered = true
                     end
                 end
-                if isAleadyBuched == false then
+                if isAleadyslaughtered == false then
                     setHash(entity)
                     Player.Functions.AddItem(v.invItemName, 1)
                     TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")

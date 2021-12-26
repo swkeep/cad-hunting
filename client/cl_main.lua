@@ -41,7 +41,7 @@ function initAnimalsTargting()
         exports['qb-target']:AddTargetModel(v.model, {
             options = {{
                 icon = "fas fa-sack-dollar",
-                label = "Buch",
+                label = "slaughter",
                 data = entity,
                 canInteract = function(entity)
                     if not IsPedAPlayer(entity) then
@@ -53,7 +53,7 @@ function initAnimalsTargting()
                     if IsPedAPlayer(entity) then
                         return false
                     end
-                    TriggerEvent('cad-hunting:client:buchAnimal', entity)
+                    TriggerEvent('cad-hunting:client:slaughterAnimal', entity)
                 end
             }},
             distance = 1.5
@@ -84,7 +84,7 @@ Citizen.CreateThread(function()
     Wait(200)
 end)
 
-AddEventHandler('cad-hunting:client:buchAnimal', function(entity)
+AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
     local model = GetEntityModel(entity)
     local animal = getAnimalMatch(model)
 
@@ -106,7 +106,7 @@ AddEventHandler('cad-hunting:client:buchAnimal', function(entity)
                     ClearPedTasks(GetPlayerPed(-1))
                     TriggerServerEvent('cad-hunting:server:AddItem', animal , entity)
                     Citizen.Wait(100)
-                    --DeleteEntity(entity)
+                    DeleteEntity(entity)
                 end)
             else
                 CoreName.Functions.Notify("You dont have knife.")
