@@ -1,4 +1,4 @@
-	-- Not fully functional
+	-- Not fully functional Qbcore
 
 
 	-- ADD THESE LINES IN qb-core/shared.lua
