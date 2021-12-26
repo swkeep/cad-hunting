@@ -104,7 +104,7 @@ AddEventHandler('cad-hunting:client:buchAnimal', function(entity)
                     disableCombat = true
                 }, {}, {}, {}, function()
                     ClearPedTasks(GetPlayerPed(-1))
-                    TriggerServerEvent('cad-hunting:server:AddItem', animal)
+                    TriggerServerEvent('cad-hunting:server:AddItem', animal , entity)
                     Citizen.Wait(100)
                     --DeleteEntity(entity)
                 end)
@@ -117,6 +117,11 @@ end)
 
 AddEventHandler('cad-hunting:client:sellREQ', function()
     TriggerServerEvent('cad-hunting:server:sellmeat', animal)
+end)
+
+RegisterNetEvent('cad-hunting:client:ForceRemoveAnimalEntity')
+AddEventHandler('cad-hunting:client:ForceRemoveAnimalEntity', function(entity)
+    DeleteEntity(entity)
 end)
 
 -- ============================
