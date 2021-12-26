@@ -1,8 +1,16 @@
 	-- Not fully functional Qbcore
+	
+	# Dependencies
+
+	* [qb-target](https://github.com/BerkieBb/qb-target)
+	* [qbcore framework](https://github.com/qbcore-framework) 
+	* [qbcore inventory](https://github.com/qbcore-framework/qb-inventory) 
 
 
-	-- ADD THESE LINES IN qb-core/shared.lua
-	-- UNDER ITEMS SECTION
+	# Installation
+	-- Add images to qb-invetory/html/images 
+	-- Add these codes to qb-core/shared.lua
+	-- Under "ITEMS" section
 
 	["meatdeer"] 		 			 	 = {["name"] = "meatdeer",       	    		["label"] = "Deer Horns",	 				["weight"] = 100, 		["type"] = "item", 		["image"] = "deerhorns.png", 			["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "Deer Horns"},
 	["meatpig"] 		 			 	 = {["name"] = "meatpig",       	    		["label"] = "Pig Meat",	 					["weight"] = 100, 		["type"] = "item", 		["image"] = "pigpelt.png", 				["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "Pig Meat"},
