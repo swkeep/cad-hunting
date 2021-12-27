@@ -118,11 +118,11 @@ function createThreadAnimalSpawningDistanceToBaitTracker(BaitCoord, entity)
                 ClearPedTasks(entity)
                 Citizen.Wait(1500)
                 TaskStartScenarioInPlace(entity, "WORLD_DEER_GRAZING", 0, true)
-                Citizen.SetTimeout(7500, function()
+                Citizen.SetTimeout(Config.AnimalsEatingSpeed, function()
                     finished = true
                 end)
             end
-            if #(spawnedAnimalCoords - GetEntityCoords(PlayerPedId())) < 15.0 then
+            if #(spawnedAnimalCoords - GetEntityCoords(PlayerPedId())) < Config.AnimalsFleeView then
                 ClearPedTasks(entity)
                 TaskSmartFleePed(entity, PlayerPedId(), 600.0, -1)
                 finished = true

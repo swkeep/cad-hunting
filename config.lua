@@ -11,7 +11,10 @@ Config.sv_maxTableSize = 5000 -- saved entites in table
 
 Config.BaitCooldown = 15000 -- 1000 per sec
 Config.SpawningTimer = 5000
+
 Config.AnimalsEatingSpeed = 7500
+Config.AnimalsFleeView = 15.0
+
 Config.BaitPlacementSpeed = math.random(3000, 3000)
 Config.SlaughteringSpeed = math.random(1000, 5000)
 
