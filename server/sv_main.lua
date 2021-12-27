@@ -96,14 +96,53 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
     Wait(10)
 end)
 
+RegisterServerEvent('keep-hunting:server:addBaitToPlayerInventory')
+AddEventHandler('keep-hunting:server:addBaitToPlayerInventory', function()
+    local src = source
+    local Player = CoreName.Functions.GetPlayer(src)
+
+    Player.Functions.AddItem("huntingbait", 1)
+    TriggerClientEvent("inventory:client:ItemBox", src, CoreName.Shared.Items["huntingbait"], "add")
+end)
+
+CoreName.Functions.CreateUseableItem("huntingbait", function(source, item)
+    local Player = CoreName.Functions.GetPlayer(source)
+    TriggerClientEvent('keep-hunting:client:usedBait', source)
+  
+    -- if Player ~= nil then
+    --     CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
+    --         if hasitem then
+    --             TriggerClientEvent('keep-hunting:client:usedBait', source)
+    --         else
+    --             CoreName.Functions.Notify("You dont have bait.")
+    --         end
+    --     end, "huntingbaitweapon_knife")
+    -- end
+  end)
+
+RegisterServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
+AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
+    local src = source
+    local Player = CoreName.Functions.GetPlayer(src)
+    Player.Functions.RemoveItem("huntingbait", 5)
+end)
+
 -- ============================
 --      Spawning Ped
 -- ============================
 
 CoreName.Commands.Add("spawnanimal", "Spawn Animals", {{"model", "Animal Model"}}, false, function(source, args)
     TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
+    --TriggerClientEvent('keep-hunting:client:spawnAnimal', source)
 end, 'god')
 
+CoreName.Commands.Add('addBait', 'TP To Marker (Admin Only)', {}, false, function(source)
+    local src = source
+    local Player = CoreName.Functions.GetPlayer(src)
+
+    Player.Functions.AddItem("huntingbait", 1)
+    TriggerClientEvent("inventory:client:ItemBox", src, CoreName.Shared.Items["huntingbait"], "add")
+end, 'admin')
 
 -- ============================
 --      Server garbage collection

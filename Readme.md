@@ -16,6 +16,9 @@
 * Add code below to qb-core/shared.lua under "ITEMS" section
 
 ```lua
+["huntingbait"] 		 			 = {["name"] = "huntingbait",       	    	["label"] = "Hunting Bait",	 				["weight"] = 150, 		["type"] = "item", 		["image"] = "huntingbait.png", 			["unique"] = false, 	["useable"] = true, 	["shouldClose"] = true,   ["combinable"] = nil,   ["description"] = "Hunting Bait"},
+
+
 ["meatdeer"] = {["name"] = "meatdeer", ["label"] = "Deer Horns", ["weight"] = 100, 		["type"] = "item", 		["image"] = "deerhorns.png", ["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "Deer Horns"},
 ["meatpig"] = {["name"] = "meatpig", ["label"] = "Pig Meat", 	["weight"] = 100, 		["type"] = "item", 		["image"] = "pigpelt.png", 	["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "Pig Meat"},
 ["meatboar"] = {["name"] = "meatboar", ["label"] = "Boar Tusks", ["weight"] = 100, 		["type"] = "item", 		["image"] = "boartusks.png", 	["unique"] = false, 	["useable"] = false, 	["shouldClose"] = false,   ["combinable"] = nil,   ["description"] = "Boar Tusks"},
