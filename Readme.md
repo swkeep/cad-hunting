@@ -8,6 +8,7 @@
 - [qb-target](https://github.com/BerkieBb/qb-target)
 - [qbcore framework](https://github.com/qbcore-framework)
 - [qbcore inventory](https://github.com/qbcore-framework/qb-inventory)
+- [qb-shops](https://github.com/qbcore-framework/qb-shops)
 
 # Installation
 
