@@ -1,6 +1,7 @@
 local CoreName = exports['qb-core']:GetCoreObject()
 local TableSize = Config.sv_maxTableSize
 local garbageCollection_tm = Config.sv_dataClearnigTimer
+local Animals = Config.Animals
 
 -- ============================
 --       EVENTS
@@ -91,6 +92,28 @@ AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
     Player.Functions.RemoveItem("huntingbait", 1)
 end)
 
+RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn')
+AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, outPosition)
+    local src = source
+    local Player = CoreName.Functions.GetPlayer(src)
+    local C_animal = choiceAnimal(Animals)
+
+    if C_animal ~= nil then
+        TriggerClientEvent('keep-hunting:client:spawnAnimal', source ,{coord , outPosition , C_animal})
+    end
+end)
+
+function choiceAnimal(Rarities)
+    local temp = {}
+    for key, value in pairs(Rarities) do
+        table.insert(temp, value.spwanRarity)
+    end
+    if temp ~= nil then
+        local sample = Alias_table_wrapper(temp)
+        return Rarities[sample]
+    end
+end
+
 -- ============================
 --      Commands
 -- ============================
@@ -104,7 +127,7 @@ CoreName.Commands.Add('addBait', 'add bait to player inventory (Admin Only)', {}
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
 
-    Player.Functions.AddItem("huntingbait", 1)
+    Player.Functions.AddItem("huntingbait", 10)
     TriggerClientEvent("inventory:client:ItemBox", src, CoreName.Shared.Items["huntingbait"], "add")
 end, 'admin')
 

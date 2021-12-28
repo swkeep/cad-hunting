@@ -126,6 +126,8 @@ end)
 -- ============================
 RegisterNetEvent('keep-hunting:client:useBait')
 AddEventHandler('keep-hunting:client:useBait', function()
+    local plyPed = PlayerPedId()
+    local coord = GetEntityCoords(plyPed)
     if inzone then
         if deplyedBaitCooldown <= 0 then
             -- TaskStartScenarioInPlace(PlayerPedId(), "WORLD_HUMAN_GARDENER_PLANT", 0, true)
@@ -168,7 +170,6 @@ function createThreadAnimalSpawningTimer(coord)
     local x = coord.x + math.random(-radius, radius)
     local y = coord.y + math.random(-radius, radius)
     local safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
-    local animal = choiceAnimal(Config.Animals) -- Config.Animals => spwanRarity
 
     if outPosition.x > 1 or outPosition.x < -1 then
         Citizen.CreateThread(function()
@@ -179,7 +180,7 @@ function createThreadAnimalSpawningTimer(coord)
             end
             if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
-                TriggerEvent('keep-hunting:client:spawnAnimal', coord, outPosition, animal)
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn' , coord, outPosition)
             else
                 CoreName.Functions.Notify("Failed to triger bait!")
             end
@@ -190,7 +191,12 @@ function createThreadAnimalSpawningTimer(coord)
 end
 
 RegisterNetEvent('keep-hunting:client:spawnAnimal')
-AddEventHandler('keep-hunting:client:spawnAnimal', function(coords, outPosition, animal)
+AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
+    local animal = data[3]
+    local outPosition = data[2]
+    local coords = data[1]
+    print(animal , coords ,outPosition)
+
     if not HasModelLoaded(animal.hash) then
         RequestModel(animal.hash)
         Wait(10)
@@ -227,17 +233,3 @@ AddEventHandler('cad-hunting:client:spawnanim', function(model)
         CreatePed(5, model, x, y, z, 0.0, true, false)
     end)
 end)
-
--- ---------------------------------------------------
-
-function choiceAnimal(Rarities)
-    local temp = {}
-    for key, value in pairs(Rarities) do
-        table.insert(temp, value.spwanRarity)
-    end
-    if temp ~= nil then
-        local sample = Alias_table_wrapper(temp)
-        print(sample)
-        return Rarities[sample]
-    end
-end
