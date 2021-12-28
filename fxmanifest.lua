@@ -5,7 +5,7 @@ author "Cadburry#7547"
 
 client_scripts {'@PolyZone/client.lua', '@PolyZone/CircleZone.lua', 'client/functions.lua' , 'client/cl_main.lua'}
 
-shared_script {'config.lua', "@qb-core/shared.lua"}
+shared_script {'config.lua', 'shared/shared.lua' ,"@qb-core/shared.lua"}
 
 server_script {'server/sv_main.lua'}
 
