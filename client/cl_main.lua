@@ -2,19 +2,25 @@
 --    CLIENT CONFIGS
 -- ============================
 local CoreName = exports['qb-core']:GetCoreObject()
-local inzone = false
-local Zones = {}
+
+local inzone = false -- hunting zone
+local Zones = {} -- hunting zone
+
 local entityPoliceAlert = {}
 
-local playerDeplyedBaitPlacementCooldown = 0
+-- bait
 local isBaitUsed = false
 local baitCooldown = Config.BaitCooldown
-local spawningTimer = Config.SpawningTimer
-local ActiveSpawningTimer = 0
+local deplyedBaitCooldown = 0
+
+-- spwaning timer
+local spawningTime = Config.SpawningTimer
+local startSpawningTimer = 0
 
 -- ============================
 --      FUNCTIONS
 -- ============================
+-- add hunting zones
 function AddCircleZone(name, center, radius, options)
     Zones[name] = CircleZone:Create(center, radius, options)
 end
@@ -26,6 +32,7 @@ function initBlips()
 end
 
 function ilegalHuntingAreasAcions(inzone)
+    -- if player is outside of legal hunting zones
     if not inzone and IsAimCamActive() then
         local _, entity = GetEntityPlayerIsFreeAimingAt(PlayerId(), Citizen.ReturnResultAnyway())
         if entity and IsEntityDead(entity) then
@@ -54,8 +61,8 @@ Citizen.CreateThread(function()
     Wait(7)
     initBlips()
     initAnimalsTargting()
-    SetRelationshipBetweenGroups(5, GetHashKey(GetPlayerPed(-1)), GetHashKey("a_c_mtlion"))
-    SetRelationshipBetweenGroups(5, GetHashKey("a_c_mtlion"), GetHashKey(GetPlayerPed(-1)))
+    -- SetRelationshipBetweenGroups(5, GetHashKey(GetPlayerPed(-1)), GetHashKey("a_c_mtlion"))
+    -- SetRelationshipBetweenGroups(5, GetHashKey("a_c_mtlion"), GetHashKey(GetPlayerPed(-1)))
     while true do
         local plyPed = PlayerPedId()
         local coord = GetEntityCoords(plyPed)
@@ -119,44 +126,38 @@ end)
 -- ============================
 RegisterNetEvent('keep-hunting:client:useBait')
 AddEventHandler('keep-hunting:client:useBait', function()
-    local plyPed = PlayerPedId()
-    local coord = GetEntityCoords(plyPed)
-    for _, zone in pairs(Zones) do
-        if Zones[_]:isPointInside(coord) then
-            inzone = true
-            if playerDeplyedBaitPlacementCooldown <= 0 then
-                -- TaskStartScenarioInPlace(PlayerPedId(), "WORLD_HUMAN_GARDENER_PLANT", 0, true)
-                loadAnimDict('amb@medic@standing@kneel@base')
-                TaskPlayAnim(PlayerPedId(), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
-                    false)
-                CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
-                    disableMovement = true,
-                    disableCarMovement = false,
-                    disableMouse = false,
-                    disableCombat = true
-                }, {}, {}, {}, function()
-                    isBaitUsed = true
-                    ClearPedTasks(PlayerPedId())
-                    if isBaitUsed then
-                        TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-                        createThreadAnimalSpawningTimer(coord)
-                    end
-                end)
-            else
-                CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " ..
-                                              (playerDeplyedBaitPlacementCooldown / 1000) .. "sec")
-            end
+    if inzone then
+        if deplyedBaitCooldown <= 0 then
+            -- TaskStartScenarioInPlace(PlayerPedId(), "WORLD_HUMAN_GARDENER_PLANT", 0, true)
+            loadAnimDict('amb@medic@standing@kneel@base')
+            TaskPlayAnim(PlayerPedId(), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
+                false)
+            CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
+                disableMovement = true,
+                disableCarMovement = false,
+                disableMouse = false,
+                disableCombat = true
+            }, {}, {}, {}, function()
+                isBaitUsed = true
+                ClearPedTasks(PlayerPedId())
+                if isBaitUsed then
+                    TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
+                    createThreadAnimalSpawningTimer(coord)
+                end
+            end)
         else
-            inzone = false
+            CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deplyedBaitCooldown / 1000) .. "sec")
         end
+    else
+        CoreName.Functions.Notify("You must be in hunting area to deply your bait!")
     end
 end)
 
 function createThreadBaitCooldown()
     Citizen.CreateThread(function()
-        playerDeplyedBaitPlacementCooldown = baitCooldown
-        while playerDeplyedBaitPlacementCooldown > 0 do
-            playerDeplyedBaitPlacementCooldown = playerDeplyedBaitPlacementCooldown - 1000
+        deplyedBaitCooldown = baitCooldown
+        while deplyedBaitCooldown > 0 do
+            deplyedBaitCooldown = deplyedBaitCooldown - 1000
             Wait(1000)
         end
     end)
@@ -171,12 +172,12 @@ function createThreadAnimalSpawningTimer(coord)
 
     if outPosition.x > 1 or outPosition.x < -1 then
         Citizen.CreateThread(function()
-            ActiveSpawningTimer = spawningTimer
-            while ActiveSpawningTimer > 0 do
-                ActiveSpawningTimer = ActiveSpawningTimer - 1000
+            startSpawningTimer = spawningTime
+            while startSpawningTimer > 0 do
+                startSpawningTimer = startSpawningTimer - 1000
                 Wait(1000)
             end
-            if ActiveSpawningTimer == 0 then
+            if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
                 TriggerEvent('keep-hunting:client:spawnAnimal', coord, outPosition, animal)
             else
