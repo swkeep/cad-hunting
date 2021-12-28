@@ -117,8 +117,8 @@ end)
 -- ============================
 --      Bait
 -- ============================
-RegisterNetEvent('keep-hunting:client:usedBait')
-AddEventHandler('keep-hunting:client:usedBait', function()
+RegisterNetEvent('keep-hunting:client:useBait')
+AddEventHandler('keep-hunting:client:useBait', function()
     local plyPed = PlayerPedId()
     local coord = GetEntityCoords(plyPed)
     for _, zone in pairs(Zones) do

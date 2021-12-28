@@ -5,21 +5,7 @@ local garbageCollection_tm = Config.sv_dataClearnigTimer
 -- ============================
 --       EVENTS
 -- ============================
-local animalsEnity = {}
-
-function setHash(entity)
-    table.insert(animalsEnity, entity)
-end
-
-function garbageCollection()
-    local count = #animalsEnity
-    if count > TableSize then
-        print("clearing Hunted Animals data")
-        for i = 0, count do
-            animalsEnity[i] = nil
-        end
-    end
-end
+local animalsEnity = {} -- prevent players to slaughter twice
 
 RegisterServerEvent("cad-hunting:server:AddItem")
 AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
@@ -28,24 +14,24 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
 
     for _, v in pairs(Config.Animals) do
         if v.model == data.model then
-            -- check if another player already slaughter animal or not
+            -- check if another player already slaughtered or not
             if animalsEnity ~= nil then
-                local isAleadyslaughtered = false
+                local isAleadySlaughtered = false
                 for _, v in pairs(animalsEnity) do
                     if v == entity then
                         TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
                         TriggerClientEvent('cad-hunting:client:ForceRemoveAnimalEntity', _source, entity)
-                        isAleadyslaughtered = true
+                        isAleadySlaughtered = true
                     end
                 end
-                if isAleadyslaughtered == false then
-                    setHash(entity)
+                if isAleadySlaughtered == false then
+                    setHash(entity) -- prevent player to slaughter twice
                     Player.Functions.AddItem(v.invItemName, 1)
                     TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
                 end
             else
                 -- init animalsEnity table
-                setHash(entity)
+                setHash(entity) -- prevent player to slaughter twice
                 Player.Functions.AddItem(v.invItemName, 1)
                 TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
             end
@@ -60,7 +46,7 @@ AddEventHandler("cad-hunting:server:spawnanimals", function()
 end)
 
 -- ============================
---   SELLING EVENTS
+--   SELLING
 -- ============================
 RegisterServerEvent('cad-hunting:server:sellmeat')
 AddEventHandler('cad-hunting:server:sellmeat', function()
@@ -70,7 +56,7 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
 
     if Player ~= nil then
         if Player.PlayerData.items ~= nil and next(Player.PlayerData.items) ~= nil then
-            for k, v in pairs(Player.PlayerData.items) do
+            for k, v in ipairs(Player.PlayerData.items) do
                 if Player.PlayerData.items[k] ~= nil then
                     for _, v in pairs(Config.Animals) do
                         if v.invItemName == Player.PlayerData.items[k].name then
@@ -81,7 +67,6 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
                     end
                 end
             end
-            Citizen.Wait(2000)
             if price == 0 then
                 TriggerClientEvent('QBCore:Notify', src, "You didn't have any sellable items")
             else
@@ -96,8 +81,7 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
 end)
 
 CoreName.Functions.CreateUseableItem("huntingbait", function(source, item)
-    local Player = CoreName.Functions.GetPlayer(source)
-    TriggerClientEvent('keep-hunting:client:usedBait', source)
+    TriggerClientEvent('keep-hunting:client:useBait', source)
 end)
 
 RegisterServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
@@ -111,9 +95,10 @@ end)
 --      Commands
 -- ============================
 
-CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)", {{"model", "Animal Model"}}, false, function(source, args)
-    TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
-end, 'admin')
+CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)", {{"model", "Animal Model"}}, false,
+    function(source, args)
+        TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
+    end, 'admin')
 
 CoreName.Commands.Add('addBait', 'add bait to player inventory (Admin Only)', {}, false, function(source)
     local src = source
@@ -133,3 +118,20 @@ Citizen.CreateThread(function()
         garbageCollection()
     end
 end)
+
+-- ============================
+--      Functions
+-- ============================
+function setHash(entity)
+    table.insert(animalsEnity, entity)
+end
+
+function garbageCollection()
+    local count = #animalsEnity
+    if count > TableSize then
+        print("clearing Hunted Animals data")
+        for i = 0, count do
+            animalsEnity[i] = nil
+        end
+    end
+end
