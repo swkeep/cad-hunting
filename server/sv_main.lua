@@ -33,8 +33,7 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
                 local isAleadyslaughtered = false
                 for _, v in pairs(animalsEnity) do
                     if v == entity then
-                        TriggerClientEvent('QBCore:Notify', _source,
-                            "Someone already slaughtered this animal!")
+                        TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
                         TriggerClientEvent('cad-hunting:client:ForceRemoveAnimalEntity', _source, entity)
                         isAleadyslaughtered = true
                     end
@@ -96,47 +95,27 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
     Wait(10)
 end)
 
-RegisterServerEvent('keep-hunting:server:addBaitToPlayerInventory')
-AddEventHandler('keep-hunting:server:addBaitToPlayerInventory', function()
-    local src = source
-    local Player = CoreName.Functions.GetPlayer(src)
-
-    Player.Functions.AddItem("huntingbait", 1)
-    TriggerClientEvent("inventory:client:ItemBox", src, CoreName.Shared.Items["huntingbait"], "add")
-end)
-
 CoreName.Functions.CreateUseableItem("huntingbait", function(source, item)
     local Player = CoreName.Functions.GetPlayer(source)
     TriggerClientEvent('keep-hunting:client:usedBait', source)
-  
-    -- if Player ~= nil then
-    --     CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
-    --         if hasitem then
-    --             TriggerClientEvent('keep-hunting:client:usedBait', source)
-    --         else
-    --             CoreName.Functions.Notify("You dont have bait.")
-    --         end
-    --     end, "huntingbaitweapon_knife")
-    -- end
-  end)
+end)
 
 RegisterServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
 AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
-    Player.Functions.RemoveItem("huntingbait", 5)
+    Player.Functions.RemoveItem("huntingbait", 1)
 end)
 
 -- ============================
---      Spawning Ped
+--      Commands
 -- ============================
 
-CoreName.Commands.Add("spawnanimal", "Spawn Animals", {{"model", "Animal Model"}}, false, function(source, args)
+CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)", {{"model", "Animal Model"}}, false, function(source, args)
     TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
-    --TriggerClientEvent('keep-hunting:client:spawnAnimal', source)
-end, 'god')
+end, 'admin')
 
-CoreName.Commands.Add('addBait', 'TP To Marker (Admin Only)', {}, false, function(source)
+CoreName.Commands.Add('addBait', 'add bait to player inventory (Admin Only)', {}, false, function(source)
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
 
@@ -147,6 +126,7 @@ end, 'admin')
 -- ============================
 --      Server garbage collection
 -- ============================
+
 Citizen.CreateThread(function()
     while true do
         Citizen.Wait(garbageCollection_tm)
