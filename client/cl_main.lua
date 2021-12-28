@@ -11,7 +11,7 @@ local entityPoliceAlert = {}
 -- bait
 local isBaitUsed = false
 local baitCooldown = Config.BaitCooldown
-local deplyedBaitCooldown = 0
+local deployedBaitCooldown = 0
 
 -- spwaning timer
 local spawningTime = Config.SpawningTimer
@@ -129,7 +129,7 @@ AddEventHandler('keep-hunting:client:useBait', function()
     local plyPed = PlayerPedId()
     local coord = GetEntityCoords(plyPed)
     if inzone then
-        if deplyedBaitCooldown <= 0 then
+        if deployedBaitCooldown <= 0 then
             -- TaskStartScenarioInPlace(PlayerPedId(), "WORLD_HUMAN_GARDENER_PLANT", 0, true)
             loadAnimDict('amb@medic@standing@kneel@base')
             TaskPlayAnim(PlayerPedId(), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
@@ -148,18 +148,18 @@ AddEventHandler('keep-hunting:client:useBait', function()
                 end
             end)
         else
-            CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deplyedBaitCooldown / 1000) .. "sec")
+            CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
         end
     else
-        CoreName.Functions.Notify("You must be in hunting area to deply your bait!")
+        CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
     end
 end)
 
 function createThreadBaitCooldown()
     Citizen.CreateThread(function()
-        deplyedBaitCooldown = baitCooldown
-        while deplyedBaitCooldown > 0 do
-            deplyedBaitCooldown = deplyedBaitCooldown - 1000
+        deployedBaitCooldown = baitCooldown
+        while deployedBaitCooldown > 0 do
+            deployedBaitCooldown = deployedBaitCooldown - 1000
             Wait(1000)
         end
     end)
