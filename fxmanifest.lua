@@ -9,6 +9,12 @@ shared_script {'config.lua', 'shared/shared.lua' ,"@qb-core/shared.lua"}
 
 server_script {'server/sv_main.lua'}
 
+-- files{
+--     'html/*'
+-- }
+
+-- ui_page('html/index.html')
+
 -- server_script 'server/md5.lua'
 
 -- server_exports {

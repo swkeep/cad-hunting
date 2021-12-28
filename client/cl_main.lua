@@ -31,26 +31,48 @@ function initBlips()
     createCustomBlips("area", Config.HuntingArea)
 end
 
+-- function handleDecorator(animal)
+--     if (DecorExistOn(animal, "lastshot")) then
+--         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
+--     else
+--         DecorRegister("lastshot", 3)
+--         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
+--     end
+-- end
+
+-- function isKillMine(animal)
+--     if (DecorExistOn(animal, "lastshot")) then
+--         local aid = DecorGetInt(animal, "lastshot")
+--         local id = GetPlayerServerId(PlayerId())
+--         return (aid == id)
+--     end
+-- end
+
 function ilegalHuntingAreasAcions(inzone)
     -- if player is outside of legal hunting zones
-    if not inzone and IsAimCamActive() then
+    if not inzone then
         local _, entity = GetEntityPlayerIsFreeAimingAt(PlayerId(), Citizen.ReturnResultAnyway())
         if entity and IsEntityDead(entity) then
             if IsEntityAPed(entity) then
-                if entityPoliceAlert ~= nill then
-                    local isAlertNeeded = true
-                    for _, alert in pairs(entityPoliceAlert) do
-                        if alert == entity then
-                            isAlertNeeded = false
+                for _, value in pairs(Config.Animals) do
+                    if value.hash == GetEntityModel(entity) then
+                        if entityPoliceAlert ~= nill then
+                            local isAlertNeeded = true
+                            for _, alert in pairs(entityPoliceAlert) do
+                                if alert == entity then
+                                    isAlertNeeded = false
+                                end
+                            end
+                            if isAlertNeeded == true then
+                                table.insert(entityPoliceAlert, entity)
+                                TriggerEvent("police:client:policeAlert", GetEntityCoords(entity),
+                                    "ilegal Hunting in area")
+                            end
+                        else
+                            table.insert(entityPoliceAlert, entity)
+                            TriggerEvent("police:client:policeAlert", GetEntityCoords(entity), "ilegal Hunting in area")
                         end
                     end
-                    if isAlertNeeded == true then
-                        table.insert(entityPoliceAlert, entity)
-                        TriggerEvent("police:client:policeAlert", GetEntityCoords(entity), "ilegal Hunting in area")
-                    end
-                else
-                    table.insert(entityPoliceAlert, entity)
-                    TriggerEvent("police:client:policeAlert", GetEntityCoords(entity), "ilegal Hunting in area")
                 end
             end
         end
@@ -74,7 +96,7 @@ Citizen.CreateThread(function()
             end
         end
         ilegalHuntingAreasAcions(inzone)
-        Wait(550)
+        Wait(500)
     end
 end)
 
@@ -180,7 +202,7 @@ function createThreadAnimalSpawningTimer(coord)
             end
             if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
-                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn' , coord, outPosition)
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition)
             else
                 CoreName.Functions.Notify("Failed to triger bait!")
             end
@@ -195,7 +217,6 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
     local animal = data[3]
     local outPosition = data[2]
     local coords = data[1]
-    print(animal , coords ,outPosition)
 
     if not HasModelLoaded(animal.hash) then
         RequestModel(animal.hash)

@@ -2,8 +2,6 @@ function createCustomBlips(type, data)
     for _, v in pairs(data) do
         -- create Blips
         local blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
-
-        SetBlipAsShortRange(blip, true)
         if type == "area" then
             SetBlipSprite(blip, 141)
 
@@ -13,7 +11,7 @@ function createCustomBlips(type, data)
             RadiusBlip = AddBlipForRadius(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z, v.radius)
             AddCircleZone(v.name, v.BlipsCoords, v.radius, {
                 name = "circle_zone",
-                debugPoly = true
+                debugPoly = false
             })
             SetBlipRotation(RadiusBlip, 0)
             SetBlipColour(RadiusBlip, 4)
