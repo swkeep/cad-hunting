@@ -57,7 +57,7 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
 
     if Player ~= nil then
         if Player.PlayerData.items ~= nil and next(Player.PlayerData.items) ~= nil then
-            for k, v in ipairs(Player.PlayerData.items) do
+            for k, v in pairs(Player.PlayerData.items) do
                 if Player.PlayerData.items[k] ~= nil then
                     for _, v in pairs(Config.Animals) do
                         if v.invItemName == Player.PlayerData.items[k].name then
