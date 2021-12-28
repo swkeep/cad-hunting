@@ -12,6 +12,7 @@ local isBaitUsed = false
 local baitCooldown = Config.BaitCooldown
 local spawningTimer = Config.SpawningTimer
 local ActiveSpawningTimer = 0
+
 -- ============================
 --      FUNCTIONS
 -- ============================
