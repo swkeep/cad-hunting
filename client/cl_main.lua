@@ -201,7 +201,7 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coords, outPosition,
 
     if DoesEntityExist(baitAnimal) then
         TaskGoToCoordAnyMeans(baitAnimal, coords, 2.0, 0, 786603, 0)
-        createThreadAnimalSpawningDistanceToBaitTracker(coords, baitAnimal)
+        createThreadAnimalTraveledDistanceToBaitTracker(coords, baitAnimal)
         isBaitUsed = false
     end
     print("debug: spwan success")
@@ -223,11 +223,7 @@ AddEventHandler('cad-hunting:client:spawnanim', function(model)
         while not HasModelLoaded(model) do
             Citizen.Wait(1)
         end
-        local baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
-        -- TaskCombatPed(baitAnimal --[[ Ped ]] , GetPlayerPed(playerPed) ,0 ,16 )
-        -- TaskStartScenarioInPlace(baitAnimal, "WORLD_DEER_GRAZING", 0, true)
-        -- TaskSmartFleeCoord(baitAnimal, coords.x, coords.y, coords.z, 600.0, -1, 0, 0)
-        -- TaskSmartFleePed(baitAnimal, PlayerPedId(), 600.0, -1)
+        CreatePed(5, model, x, y, z, 0.0, true, false)
     end)
 end)
 

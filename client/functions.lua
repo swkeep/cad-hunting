@@ -109,7 +109,7 @@ end
 
 -- animals Smart Flee
 
-function createThreadAnimalSpawningDistanceToBaitTracker(BaitCoord, entity)
+function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
     Citizen.CreateThread(function()
         local finished = false
         while not IsPedDeadOrDying(entity) and not finished do
