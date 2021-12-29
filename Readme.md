@@ -80,3 +80,12 @@ Config.Locations = {
     },
 }
 ```
+#fix shop icon 
+* to do that you need to add code blow after line 163 in qb-shops/client/main.lua
+
+```lua
+elseif Config.Locations[store]["products"] == Config.Products["huntingshop"] then
+				SetBlipSprite(StoreBlip, 626)
+				SetBlipScale(StoreBlip, 1.0)
+				SetBlipColour(StoreBlip,1)
+```
