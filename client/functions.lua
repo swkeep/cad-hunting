@@ -2,6 +2,7 @@ function createCustomBlips(type, data)
     for _, v in pairs(data) do
         -- create Blips
         local blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
+        SetBlipAsShortRange(blip, true)
         if type == "area" then
             SetBlipSprite(blip, 141)
 
@@ -93,17 +94,16 @@ end
 
 function weightedRandom(Rarities)
     local Index = math.random()
-	local HighestRarity = "Common"
-	
-	for RarityName, Value in pairs(Rarities) do
-		if Index >= Value and Value >= Rarities[HighestRarity] then
-			HighestRarity = RarityName
-		end
-	end
-	
-	return HighestRarity
-end
+    local HighestRarity = "Common"
 
+    for RarityName, Value in pairs(Rarities) do
+        if Index >= Value and Value >= Rarities[HighestRarity] then
+            HighestRarity = RarityName
+        end
+    end
+
+    return HighestRarity
+end
 
 -- animals Smart Flee
 
