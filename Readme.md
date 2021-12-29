@@ -81,7 +81,7 @@ Config.Locations = {
 }
 ```
 #fix shop icon 
-* to do that you need to add code blow after line 163 in qb-shops/client/main.lua
+* to do that you need to add code below after line 163 in qb-shops/client/main.lua
 
 ```lua
 elseif Config.Locations[store]["products"] == Config.Products["huntingshop"] then
