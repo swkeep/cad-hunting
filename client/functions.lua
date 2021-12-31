@@ -136,18 +136,19 @@ end
 function getSpawnLocation(coord)
     local radius = Config.baitSpawnDistance
     local safeCoord, outPosition
-    local foundSafeSpot = true
+    local finished = false
     local index = 0
 
-    while foundSafeSpot == true and index <= 100 do
+    while finished == false and index <= 1000 do
         posX = coord.x + math.random(-radius, radius)
         posY = coord.y + math.random(-radius, radius)
         Z = coord.z + 999.0
         heading = math.random(0, 359) + .0
-        ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, 1)
+        ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, true)
 
-        safeCoord, outPosition = GetSafeCoordForPed(posX, posY, Z, false, 16)
-        foundSafeSpot = safeCoord
+        safeCoord, outPosition = GetSafeCoordForPed(posX, posY, posZ, false, 16)
+        print(ground, posZ, safeCoord, outPosition)
+        finished = safeCoord
         index = index + 1
     end
     return vector4(posX, posY, posZ, heading)
@@ -162,8 +163,26 @@ function createDespawnThread(baitAnimal)
             local coord = GetEntityCoords(plyPed)
 
             local animalCoord = GetEntityCoords(baitAnimal)
+            local isDead = IsEntityDead(baitAnimal)
+            local isEntityInWater = IsEntityInWater(baitAnimal)
             local distance = #(coord - animalCoord)
-            if distance >= range then
+
+            if distance <= 70 and not isDead then
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.2 --[[ number ]] )
+            elseif distance <= 25 and not isDead then
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.5 --[[ number ]] )
+            elseif distance <= 10 and not isDead then
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.8 --[[ number ]] )
+            elseif isDead then
+                StopGameplayCamShaking(true)
+            end
+            if isEntityInWater or distance >= range then
+                if isEntityInWater then
+                    exports['qb-core']:GetCoreObject().Functions.Notify(
+                        "Animal got baited and drowned, stay away from water!")
+                    SetModelAsNoLongerNeeded(baitAnimal)
+                    SetPedAsNoLongerNeeded(baitAnimal)
+                end
                 SetModelAsNoLongerNeeded(baitAnimal)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
                 finished = true

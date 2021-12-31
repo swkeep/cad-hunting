@@ -227,7 +227,7 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
         SetBlipSprite(blip, spawnedAnimalsBlipsConfig.sprite) -- if you want the animals to have blips change the 0 to a different blip number
         SetBlipColour(blip, spawnedAnimalsBlipsConfig.color)
         BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("spawned entity")
+        AddTextComponentString("bait animal")
         EndTextCommandSetBlipName(blip)
     end
 
