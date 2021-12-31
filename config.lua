@@ -30,7 +30,7 @@ Config.AnimalBlip = {
 
 Config.Animals = {{
     model = "a_c_deer",
-    spwanRarity = {10, 90}, -- {in llegal are spawn chance , in illegal area spawn chance}
+    spwanRarity = {10, 90}, -- {llegal area spawn chance , illegal area spawn chance}
     hash = -664053099,
     item = "Deer Horns",
     invItemName = "meatdeer",
