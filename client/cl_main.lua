@@ -51,9 +51,9 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
     if (model and animal) then
         CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
             if hasitem then
-                SetEntityCoords(GetPlayerPed(-1), animalCoord.x - 0.6, animalCoord.y, animalCoord.z-0.9, ture, false, true,
+                SetEntityCoords(GetPlayerPed(-1), animalCoord.x - 0.5, animalCoord.y, animalCoord.z -0.8, ture, false, true,
                     false)
-                SetEntityHeading(GetPlayerPed(-1), (GetEntityHeading(entity) - 90.0))
+                makeEntityFaceEntity(GetPlayerPed(-1), entity)
                 loadAnimDict('amb@medic@standing@kneel@base')
                 loadAnimDict('anim@gangops@facility@servers@bodysearch@')
                 TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false,

@@ -201,6 +201,18 @@ function callPoliceChance()
     return Alias_table_wrapper(Config.callPoliceChance)
 end
 
+function makeEntityFaceEntity(entity1, entity2)
+    local p1 = GetEntityCoords(entity1, true)
+    local p2 = GetEntityCoords(entity2, true)
+
+    local dx = p2.x - p1.x
+    local dy = p2.y - p1.y
+
+    local heading = GetHeadingFromVector_2d(dx, dy)
+
+    SetEntityHeading(entity1, heading)
+end
+
 -- function handleDecorator(animal)
 --     if (DecorExistOn(animal, "lastshot")) then
 --         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
