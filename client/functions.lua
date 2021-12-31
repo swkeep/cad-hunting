@@ -147,14 +147,13 @@ function getSpawnLocation(coord)
         ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, true)
 
         safeCoord, outPosition = GetSafeCoordForPed(posX, posY, posZ, false, 16)
-        print(ground, posZ, safeCoord, outPosition)
         finished = safeCoord
         index = index + 1
     end
     return vector4(posX, posY, posZ, heading)
 end
 
-function createDespawnThread(baitAnimal)
+function createDespawnThread(baitAnimal, was_llegal)
     Citizen.CreateThread(function()
         local finished = false
         local range = Config.animalDespawnRange
@@ -175,6 +174,11 @@ function createDespawnThread(baitAnimal)
                 ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.8 --[[ number ]] )
             elseif isDead then
                 StopGameplayCamShaking(true)
+                local callPoliceChance = callPoliceChance()
+                if was_llegal and callPoliceChance == 1 then
+                    Config.llegalHuntingNotification(animalCoord)
+                end
+                finished = true
             end
             if isEntityInWater or distance >= range then
                 if isEntityInWater then
@@ -190,6 +194,11 @@ function createDespawnThread(baitAnimal)
             Wait(750)
         end
     end)
+end
+
+--@type number
+function callPoliceChance()
+    return Alias_table_wrapper(Config.callPoliceChance)
 end
 
 -- function handleDecorator(animal)
