@@ -152,16 +152,47 @@ function getSpawnLocation(coord)
     local index = 0
 
     -- try to get spwan postion 
+    -- while foundSafeSpot == true and index <= 100 do
+    --     local x = coord.x + math.random(-radius, radius)
+    --     local y = coord.y + math.random(-radius, radius)
+    --     safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
+    --     if outPosition.x ~= 0 or outPosition.y ~= 0 or outPosition.z ~= 0 then
+    --         foundSafeSpot = false
+    --     end
+    --     index = index + 1
+    -- end
     while foundSafeSpot == true and index <= 100 do
-        local x = coord.x + math.random(-radius, radius)
-        local y = coord.y + math.random(-radius, radius)
-        safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
-        if outPosition.x ~= 0 or outPosition.y ~= 0 or outPosition.z ~= 0 then
-            foundSafeSpot = false
-        end
+        posX = coord.x + math.random(-radius, radius)
+        posY = coord.y + math.random(-radius, radius)
+        Z = coord.z + 999.0
+        heading = math.random(0, 359) + .0
+        ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, 1)
+
+        safeCoord, outPosition = GetSafeCoordForPed(posX, posY, Z, false, 16)
+        foundSafeSpot = safeCoord
         index = index + 1
     end
-    return safeCoord, outPosition
+    return vector4(posX, posY, posZ, heading)
+end
+
+function createDespawnThread(baitAnimal)
+    Citizen.CreateThread(function()
+        local finished = false
+        while finished == false do
+            local plyPed = PlayerPedId()
+            local coord = GetEntityCoords(plyPed)
+
+            local animalCoord = GetEntityCoords(baitAnimal)
+            local distance = #(coord - animalCoord)
+            print(distance)
+            if distance >= 500 then
+                SetModelAsNoLongerNeeded(baitAnimal)
+                SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
+                finished = true
+            end
+            Wait(750)
+        end
+    end)
 end
 
 -- function handleDecorator(animal)

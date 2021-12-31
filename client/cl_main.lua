@@ -16,6 +16,9 @@ local deployedBaitCooldown = 0
 local spawningTime = Config.SpawningTimer
 local startSpawningTimer = 0
 
+local spawnedAnimalsBlips = Config.spawnedAnimalsBlips
+local spawnedAnimalsBlipsConfig = Config.AnimalBlip
+
 -- ============================
 --      FUNCTIONS
 -- ============================
@@ -181,9 +184,9 @@ function createThreadBaitCooldown()
 end
 
 function createThreadAnimalSpawningTimer(coord)
-    local safeCoord, outPosition = getSpawnLocation(coord)
+    local outPosition = getSpawnLocation(coord)
 
-    if outPosition.x > 1 or outPosition.x < -1 then
+    if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
         Citizen.CreateThread(function()
             startSpawningTimer = spawningTime
             while startSpawningTimer > 0 do
@@ -198,7 +201,7 @@ function createThreadAnimalSpawningTimer(coord)
             end
         end)
     else
-        CoreName.Functions.Notify("Find Better Location To place yout bait!")
+        CoreName.Functions.Notify("pls find a better location for you bait!")
     end
 end
 
@@ -215,23 +218,25 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
     while not HasModelLoaded(animal.hash) do
         Wait(10)
     end
-    local baitAnimal = CreatePed(28, animal.hash, outPosition.x, outPosition.y, 0, true, true)
+    local baitAnimal =
+        CreatePed(28, animal.hash, outPosition.x, outPosition.y, outPosition.z, outPosition.w, true, true)
     SetEntityAsMissionEntity(baitAnimal, true, true)
 
-    local blip = AddBlipForEntity(baitAnimal)
-    SetBlipSprite(blip, 3) -- if you want the animals to have blips change the 0 to a different blip number
-    SetBlipColour(blip, 1)
-    BeginTextCommandSetBlipName("STRING")
-    AddTextComponentString("spawned entity")
-    EndTextCommandSetBlipName(blip)
+    if spawnedAnimalsBlips == true then
+        local blip = AddBlipForEntity(baitAnimal)
+        SetBlipSprite(blip, spawnedAnimalsBlipsConfig.sprite) -- if you want the animals to have blips change the 0 to a different blip number
+        SetBlipColour(blip, spawnedAnimalsBlipsConfig.color)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString("spawned entity")
+        EndTextCommandSetBlipName(blip)
+    end
 
     if DoesEntityExist(baitAnimal) then
         TaskGoToCoordAnyMeans(baitAnimal, coords, 2.0, 0, 786603, 0)
         createThreadAnimalTraveledDistanceToBaitTracker(coords, baitAnimal)
         TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-        -- SetModelAsNoLongerNeeded(baitAnimal)
-        -- SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
         print("debug: spwan success")
+        createDespawnThread(baitAnimal)
     else
         print("debug: spwan failed")
     end
