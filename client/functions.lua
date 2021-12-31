@@ -178,6 +178,7 @@ end
 function createDespawnThread(baitAnimal)
     Citizen.CreateThread(function()
         local finished = false
+        local range = Config.animalDespawnRange
         while finished == false do
             local plyPed = PlayerPedId()
             local coord = GetEntityCoords(plyPed)
@@ -185,7 +186,7 @@ function createDespawnThread(baitAnimal)
             local animalCoord = GetEntityCoords(baitAnimal)
             local distance = #(coord - animalCoord)
             print(distance)
-            if distance >= 500 then
+            if distance >= range then
                 SetModelAsNoLongerNeeded(baitAnimal)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
                 finished = true

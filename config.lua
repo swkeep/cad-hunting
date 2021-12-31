@@ -9,20 +9,22 @@ Config.sv_maxTableSize = 5000 -- saved entites in table
 -- End
 
 Config.BaitCooldown = 15000 -- 1000 per sec
-Config.SpawningTimer = 5000
+Config.SpawningTimer = 5000 -- script will wait until "SpawningTimer" time out then it's spwan animal  
 
-Config.AnimalsEatingSpeed = 7500
-Config.AnimalsFleeView = 15.0
+Config.AnimalsEatingSpeed = 7500 -- how much animals will wait in baits location
+Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 
-Config.BaitPlacementSpeed = math.random(3000, 3000)
+Config.BaitPlacementSpeed = math.random(3000, 3000) 
 Config.SlaughteringSpeed = math.random(1000, 5000)
 
-Config.baitSpawnDistance = math.random(70, 150)
+Config.baitSpawnDistance = math.random(70, 150) -- animal spwan radius from placed bait
 
-Config.spawnedAnimalsBlips = true
+Config.animalDespawnRange = 500.0
+
+Config.spawnedAnimalsBlips = true -- when animals spawend it will appears in map with blips on them
 Config.AnimalBlip = {
-    sprite = 3,
-    color = 2
+    sprite = 463, -- icon https://docs.fivem.net/docs/game-references/blips/
+    color = 5
 }
 
 Config.Animals = {{
