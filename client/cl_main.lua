@@ -181,10 +181,7 @@ function createThreadBaitCooldown()
 end
 
 function createThreadAnimalSpawningTimer(coord)
-    local radius = Config.baitSpawnDistance
-    local x = coord.x + math.random(-radius, radius)
-    local y = coord.y + math.random(-radius, radius)
-    local safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
+    local safeCoord, outPosition = getSpawnLocation(coord)
 
     if outPosition.x > 1 or outPosition.x < -1 then
         Citizen.CreateThread(function()
@@ -218,15 +215,22 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
     while not HasModelLoaded(animal.hash) do
         Wait(10)
     end
-    local baitAnimal = CreatePed(28, animal.hash, outPosition.x, outPosition.y, outPosition.z, 0, true, false)
+    local baitAnimal = CreatePed(28, animal.hash, outPosition.x, outPosition.y, 0, true, true)
     SetEntityAsMissionEntity(baitAnimal, true, true)
+
+    local blip = AddBlipForEntity(baitAnimal)
+    SetBlipSprite(blip, 3) -- if you want the animals to have blips change the 0 to a different blip number
+    SetBlipColour(blip, 1)
+    BeginTextCommandSetBlipName("STRING")
+    AddTextComponentString("spawned entity")
+    EndTextCommandSetBlipName(blip)
 
     if DoesEntityExist(baitAnimal) then
         TaskGoToCoordAnyMeans(baitAnimal, coords, 2.0, 0, 786603, 0)
         createThreadAnimalTraveledDistanceToBaitTracker(coords, baitAnimal)
         TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-        SetModelAsNoLongerNeeded(baitAnimal)
-        SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
+        -- SetModelAsNoLongerNeeded(baitAnimal)
+        -- SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
         print("debug: spwan success")
     else
         print("debug: spwan failed")

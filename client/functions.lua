@@ -15,7 +15,7 @@ function createCustomBlips(data)
             EndTextCommandSetBlipName(Blip)
             local RadiusBlip = AddBlipForRadius(v.coord.x, v.coord.y, v.coord.z, v.radius)
             print(v.radius)
-            AddCircleZone(v.name, v.llegal , v.coord, v.radius, {
+            AddCircleZone(v.name, v.llegal, v.coord, v.radius, {
                 name = "circle_zone",
                 debugPoly = true
             })
@@ -142,6 +142,26 @@ function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
             TaskSmartFleePed(entity, PlayerPedId(), 600.0, -1)
         end
     end)
+end
+
+-- 
+function getSpawnLocation(coord)
+    local radius = Config.baitSpawnDistance
+    local safeCoord, outPosition
+    local foundSafeSpot = true
+    local index = 0
+
+    -- try to get spwan postion 
+    while foundSafeSpot == true and index <= 100 do
+        local x = coord.x + math.random(-radius, radius)
+        local y = coord.y + math.random(-radius, radius)
+        safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
+        if outPosition.x ~= 0 or outPosition.y ~= 0 or outPosition.z ~= 0 then
+            foundSafeSpot = false
+        end
+        index = index + 1
+    end
+    return safeCoord, outPosition
 end
 
 -- function handleDecorator(animal)
