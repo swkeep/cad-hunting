@@ -1,3 +1,5 @@
+local DEBUG = Config.DEBUG
+
 function createCustomBlips(data)
     for _, v in pairs(data) do
         -- create Blips
@@ -14,10 +16,10 @@ function createCustomBlips(data)
             AddTextComponentString(v.name)
             EndTextCommandSetBlipName(Blip)
             local RadiusBlip = AddBlipForRadius(v.coord.x, v.coord.y, v.coord.z, v.radius)
-            print(v.radius)
+
             AddCircleZone(v.name, v.llegal, v.coord, v.radius, {
                 name = "circle_zone",
-                debugPoly = true
+                debugPoly = DEBUG
             })
             SetBlipRotation(RadiusBlip, 0)
 
@@ -54,9 +56,9 @@ function initSellspotsQbTargets(sellspot)
             options = {{
                 event = "cad-hunting:client:sellREQ",
                 icon = "fas fa-sack-dollar",
-                label = "Sell MMMMMMEATTTTTTTT"
+                label = "Sell All"
             }},
-            distance = 1.5
+            distance = 2.5
         })
     end
 end
@@ -68,18 +70,17 @@ function initAnimalsTargting()
             options = {{
                 icon = "fas fa-sack-dollar",
                 label = "slaughter",
-                data = entity,
                 canInteract = function(entity)
                     if not IsPedAPlayer(entity) then
-                        local res = (entity and IsEntityDead(entity))
-                        return res
+                        return (entity and IsEntityDead(entity))
                     end
                 end,
                 action = function(entity)
-                    if IsPedAPlayer(entity) then
+                    if IsPedAPlayer(entity) and IsEntityDead(entity) then
                         return false
                     end
                     TriggerEvent('cad-hunting:client:slaughterAnimal', entity)
+                    return true
                 end
             }},
             distance = 1.5
@@ -185,7 +186,6 @@ function createDespawnThread(baitAnimal)
 
             local animalCoord = GetEntityCoords(baitAnimal)
             local distance = #(coord - animalCoord)
-            print(distance)
             if distance >= range then
                 SetModelAsNoLongerNeeded(baitAnimal)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
