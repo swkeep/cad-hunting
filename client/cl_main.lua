@@ -51,7 +51,9 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
     if (model and animal) then
         CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
             if hasitem then
-                -- SetEntityCoords(GetPlayerPed(-1) , animalCoord.x , animalCoord.y, animalCoord.z  , ture , false , true , false  )
+                SetEntityCoords(GetPlayerPed(-1), animalCoord.x - 0.6, animalCoord.y, animalCoord.z-0.9, ture, false, true,
+                    false)
+                SetEntityHeading(GetPlayerPed(-1), (GetEntityHeading(entity) - 90.0))
                 loadAnimDict('amb@medic@standing@kneel@base')
                 loadAnimDict('anim@gangops@facility@servers@bodysearch@')
                 TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false,
@@ -172,20 +174,16 @@ function createThreadAnimalSpawningTimer(coord, was_llegal)
 end
 
 RegisterNetEvent('keep-hunting:client:spawnAnimal')
-AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
-    local animal = data[3]
-    local outPosition = data[2]
-    local coords = data[1]
-
-    if not HasModelLoaded(animal.hash) then
-        RequestModel(animal.hash)
+AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal)
+    if not HasModelLoaded(C_animal.hash) then
+        RequestModel(C_animal.hash)
         Wait(10)
     end
-    while not HasModelLoaded(animal.hash) do
+    while not HasModelLoaded(C_animal.hash) do
         Wait(10)
     end
-    local baitAnimal =
-        CreatePed(28, animal.hash, outPosition.x, outPosition.y, outPosition.z, outPosition.w, true, true)
+    local baitAnimal = CreatePed(28, C_animal.hash, outPosition.x, outPosition.y, outPosition.z, outPosition.w, true,
+        true)
     SetEntityAsMissionEntity(baitAnimal, true, true)
 
     if spawnedAnimalsBlips == true then
@@ -198,11 +196,11 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
     end
 
     if DoesEntityExist(baitAnimal) then
-        TaskGoToCoordAnyMeans(baitAnimal, coords, 2.0, 0, 786603, 0)
-        createThreadAnimalTraveledDistanceToBaitTracker(coords, baitAnimal)
+        TaskGoToCoordAnyMeans(baitAnimal, coord, 2.0, 0, 786603, 0)
+        createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal)
         TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
         print("debug: spwan success")
-        createDespawnThread(baitAnimal)
+        createDespawnThread(baitAnimal, was_llegal)
     else
         print("debug: spwan failed")
     end
@@ -212,7 +210,7 @@ end)
 --      Spawning Ped Command
 -- ============================
 RegisterNetEvent('cad-hunting:client:spawnanim')
-AddEventHandler('cad-hunting:client:spawnanim', function(model)
+AddEventHandler('cad-hunting:client:spawnanim', function(model, was_llegal)
     model = (tonumber(model) ~= nil and tonumber(model) or GetHashKey(model))
     local playerPed = PlayerPedId()
     local coords = GetEntityCoords(playerPed)
@@ -224,7 +222,8 @@ AddEventHandler('cad-hunting:client:spawnanim', function(model)
         while not HasModelLoaded(model) do
             Citizen.Wait(1)
         end
-        CreatePed(5, model, x, y, z, 0.0, true, false)
+        baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
+        createDespawnThread(baitAnimal, was_llegal)
     end)
 end)
 

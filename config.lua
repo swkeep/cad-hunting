@@ -18,7 +18,7 @@ Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 Config.BaitPlacementSpeed = math.random(3000, 3000)
 Config.SlaughteringSpeed = math.random(1000, 5000)
 
-Config.baitSpawnDistance = 100 -- animal spwan radius from placed bait
+Config.baitSpawnDistance = 70 -- animal spwan radius from placed bait
 
 Config.animalDespawnRange = 500.0
 
@@ -27,6 +27,12 @@ Config.AnimalBlip = {
     sprite = 463, -- icon https://docs.fivem.net/docs/game-references/blips/
     color = 5
 }
+
+Config.callPoliceChance = {25 , 75} -- 25 + 75 = 100% ( 25% chance to call police )
+
+Config.llegalHuntingNotification = function(animalCoord)
+    TriggerEvent("police:client:policeAlert", animalCoord, "illlegal Hunting in area")
+end
 
 Config.Animals = {{
     model = "a_c_deer",
