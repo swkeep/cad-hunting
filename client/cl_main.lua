@@ -56,7 +56,8 @@ function illlegalHuntingAreasAcions(inzone)
                             end
                         else
                             table.insert(entityPoliceAlert, entity)
-                            TriggerEvent("police:client:policeAlert", GetEntityCoords(entity), "illlegal Hunting in area")
+                            TriggerEvent("police:client:policeAlert", GetEntityCoords(entity),
+                                "illlegal Hunting in area")
                         end
                     end
                 end
@@ -123,12 +124,18 @@ function isPedInHuntingZone(type)
 
     for _, zone in pairs(Zones) do
         if zone:isPointInside(coord) then
-            return {inzone = true , llegal = zone[1].llegal}
+            return {
+                inzone = true,
+                llegal = zone[1].llegal
+            }
         else
             legl = zone[1].llegal
         end
     end
-    return {inzone = false , llegal = legl}
+    return {
+        inzone = false,
+        llegal = legl
+    }
 end
 
 -- ============================
@@ -143,9 +150,9 @@ AddEventHandler('keep-hunting:client:useBait', function()
         if deployedBaitCooldown <= 0 then
             ClearPedTasks(plyPed)
             TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
-            --loadAnimDict('amb@medic@standing@kneel@base')
-            --TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
-                --false)
+            -- loadAnimDict('amb@medic@standing@kneel@base')
+            -- TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
+            -- false)
             CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
                 disableMovement = true,
                 disableCarMovement = false,
@@ -218,6 +225,8 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
         TaskGoToCoordAnyMeans(baitAnimal, coords, 2.0, 0, 786603, 0)
         createThreadAnimalTraveledDistanceToBaitTracker(coords, baitAnimal)
         TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
+        SetModelAsNoLongerNeeded(baitAnimal)
+        SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
         print("debug: spwan success")
     else
         print("debug: spwan failed")
@@ -242,4 +251,10 @@ AddEventHandler('cad-hunting:client:spawnanim', function(model)
         end
         CreatePed(5, model, x, y, z, 0.0, true, false)
     end)
+end)
+
+RegisterNetEvent('keep-hunting:client:clearTask')
+AddEventHandler('keep-hunting:client:clearTask', function()
+    local playerPed = PlayerPedId()
+    ClearPedTasks(playerPed)
 end)

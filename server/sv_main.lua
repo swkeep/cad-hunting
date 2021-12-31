@@ -99,7 +99,7 @@ AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, 
     local C_animal = choiceAnimal(Animals)
 
     if C_animal ~= nil then
-        TriggerClientEvent('keep-hunting:client:spawnAnimal', source ,{coord , outPosition , C_animal})
+        TriggerClientEvent('keep-hunting:client:spawnAnimal', source, {coord, outPosition, C_animal})
     end
 end)
 
@@ -122,6 +122,11 @@ CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)", {{"model", "A
     function(source, args)
         TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
     end, 'admin')
+
+CoreName.Commands.Add("clearTask", "Clear Animations", {}, false,
+    function(source)
+        TriggerClientEvent('keep-hunting:client:clearTask',source)
+    end, 'user')
 
 CoreName.Commands.Add('addBait', 'add bait to player inventory (Admin Only)', {}, false, function(source)
     local src = source
