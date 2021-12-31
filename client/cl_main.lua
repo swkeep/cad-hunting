@@ -6,8 +6,6 @@ local CoreName = exports['qb-core']:GetCoreObject()
 local inzone = false -- hunting zone
 local Zones = {} -- hunting zone
 
-local entityPoliceAlert = {}
-
 -- bait
 local baitCooldown = Config.BaitCooldown
 local deployedBaitCooldown = 0
@@ -35,38 +33,6 @@ function initBlips()
     initSellspotsQbTargets(Config.SellSpots)
     createCustomBlips(Config.SellSpots)
     createCustomBlips(Config.HuntingArea)
-end
-
-function illlegalHuntingAreasAcions(inzone)
-    -- if player is outside of llegal hunting zones
-    if not inzone then
-        local _, entity = GetEntityPlayerIsFreeAimingAt(PlayerId(), Citizen.ReturnResultAnyway())
-        if entity and IsEntityDead(entity) then
-            if IsEntityAPed(entity) then
-                for _, value in pairs(Config.Animals) do
-                    if value.hash == GetEntityModel(entity) then
-                        if entityPoliceAlert ~= nill then
-                            local isAlertNeeded = true
-                            for _, alert in pairs(entityPoliceAlert) do
-                                if alert == entity then
-                                    isAlertNeeded = false
-                                end
-                            end
-                            if isAlertNeeded == true then
-                                table.insert(entityPoliceAlert, entity)
-                                TriggerEvent("police:client:policeAlert", GetEntityCoords(entity),
-                                    "illlegal Hunting in area")
-                            end
-                        else
-                            table.insert(entityPoliceAlert, entity)
-                            TriggerEvent("police:client:policeAlert", GetEntityCoords(entity),
-                                "illlegal Hunting in area")
-                        end
-                    end
-                end
-            end
-        end
-    end
 end
 
 Citizen.CreateThread(function()
