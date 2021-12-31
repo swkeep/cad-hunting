@@ -19,6 +19,12 @@ Config.SlaughteringSpeed = math.random(1000, 5000)
 
 Config.baitSpawnDistance = math.random(70, 150)
 
+Config.spawnedAnimalsBlips = true
+Config.AnimalBlip = {
+    sprite = 3,
+    color = 2
+}
+
 Config.Animals = {{
     model = "a_c_deer",
     spwanRarity = 10,
