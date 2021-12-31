@@ -1,32 +1,43 @@
-function createCustomBlips(type, data)
+function createCustomBlips(data)
     for _, v in pairs(data) do
         -- create Blips
-        local blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
-        SetBlipAsShortRange(blip, true)
-        if type == "area" then
-            SetBlipSprite(blip, 141)
+        if v.BlipsCoords ~= nill then
+            Blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
+        else
+            Blip = AddBlipForCoord(v.coord.x, v.coord.y, v.coord.z)
+        end
+        SetBlipAsShortRange(Blip, true)
+        if v.radius ~= nil then
+            SetBlipSprite(Blip, 141)
 
             BeginTextCommandSetBlipName("STRING")
             AddTextComponentString(v.name)
-            EndTextCommandSetBlipName(blip)
-            RadiusBlip = AddBlipForRadius(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z, v.radius)
-            AddCircleZone(v.name, v.BlipsCoords, v.radius, {
+            EndTextCommandSetBlipName(Blip)
+            local RadiusBlip = AddBlipForRadius(v.coord.x, v.coord.y, v.coord.z, v.radius)
+            print(v.radius)
+            AddCircleZone(v.name, v.llegal , v.coord, v.radius, {
                 name = "circle_zone",
-                debugPoly = false
+                debugPoly = true
             })
             SetBlipRotation(RadiusBlip, 0)
-            SetBlipColour(RadiusBlip, 4)
+
+            if v.llegal == false then
+                SetBlipColour(RadiusBlip, 1)
+            else
+                SetBlipColour(RadiusBlip, 4)
+            end
+
             SetBlipAlpha(RadiusBlip, 64)
         else
-            SetBlipSprite(blip, 442)
+            SetBlipSprite(Blip, 442)
 
             BeginTextCommandSetBlipName("STRING")
             AddTextComponentString("Sell Meat")
-            EndTextCommandSetBlipName(blip)
+            EndTextCommandSetBlipName(Blip)
         end
-        SetBlipDisplay(blip, 4)
-        SetBlipScale(blip, 0.6)
-        SetBlipColour(blip, 49)
+        SetBlipDisplay(Blip, 4)
+        SetBlipScale(Blip, 0.6)
+        SetBlipColour(Blip, 49)
     end
 end
 
@@ -132,3 +143,20 @@ function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
         end
     end)
 end
+
+-- function handleDecorator(animal)
+--     if (DecorExistOn(animal, "lastshot")) then
+--         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
+--     else
+--         DecorRegister("lastshot", 3)
+--         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
+--     end
+-- end
+
+-- function isKillMine(animal)
+--     if (DecorExistOn(animal, "lastshot")) then
+--         local aid = DecorGetInt(animal, "lastshot")
+--         local id = GetPlayerServerId(PlayerId())
+--         return (aid == id)
+--     end
+-- end

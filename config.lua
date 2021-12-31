@@ -8,7 +8,6 @@ Config.sv_maxTableSize = 5000 -- saved entites in table
 
 -- End
 
-
 Config.BaitCooldown = 15000 -- 1000 per sec
 Config.SpawningTimer = 5000
 
@@ -17,6 +16,8 @@ Config.AnimalsFleeView = 15.0
 
 Config.BaitPlacementSpeed = math.random(3000, 3000)
 Config.SlaughteringSpeed = math.random(1000, 5000)
+
+Config.baitSpawnDistance = math.random(70, 150)
 
 Config.Animals = {{
     model = "a_c_deer",
@@ -82,11 +83,19 @@ Config.Animals = {{
     invItemName = "meatbird",
     price = 110
 }}
+
 Config.HuntingArea = {{
-    name = "area1",
-    BlipsCoords = vector3(-840.6, 4183.3, 215.29),
-    radius = 1000.0
+    name = "llegal hunting Area",
+    coord = vector3(-840.6, 4183.3, 215.29),
+    radius = 1000.0,
+    llegal = true
+}, {
+    name = "illlegal hunting Area",
+    coord = vector3(870.01, 5158.01, 452.54),
+    radius = 500.0,
+    llegal = false
 }}
+
 Config.SellSpots = {{
     BlipsCoords = vector3(570.34, 2796.46, 42.01),
     SellerNpc = {

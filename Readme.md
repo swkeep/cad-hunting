@@ -89,3 +89,16 @@ elseif Config.Locations[store]["products"] == Config.Products["huntingshop"] the
 				SetBlipScale(StoreBlip, 1.0)
 				SetBlipColour(StoreBlip,1)
 ```
+
+# Config.lua
+
+```lua
+Config.Animals = {{
+    model = "a_c_deer", <---- model name 
+    spwanRarity = 10, <---- how rare it's gonna be spwaned by server
+    hash = -664053099, <---- model hash 
+    item = "Deer Horns",
+    invItemName = "meatdeer", <---- qb-core/shared.lua items
+    price = 150 <---- item price
+}}
+```

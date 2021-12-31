@@ -9,7 +9,6 @@ local Zones = {} -- hunting zone
 local entityPoliceAlert = {}
 
 -- bait
-local isBaitUsed = false
 local baitCooldown = Config.BaitCooldown
 local deployedBaitCooldown = 0
 
@@ -20,36 +19,23 @@ local startSpawningTimer = 0
 -- ============================
 --      FUNCTIONS
 -- ============================
--- add hunting zones
-function AddCircleZone(name, center, radius, options)
+
+-- add CircleZone for hunting zones
+function AddCircleZone(name, llegal, center, radius, options)
     Zones[name] = CircleZone:Create(center, radius, options)
+    table.insert(Zones[name], {
+        llegal = llegal
+    })
 end
 
 function initBlips()
     initSellspotsQbTargets(Config.SellSpots)
-    createCustomBlips("normal", Config.SellSpots)
-    createCustomBlips("area", Config.HuntingArea)
+    createCustomBlips(Config.SellSpots)
+    createCustomBlips(Config.HuntingArea)
 end
 
--- function handleDecorator(animal)
---     if (DecorExistOn(animal, "lastshot")) then
---         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
---     else
---         DecorRegister("lastshot", 3)
---         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
---     end
--- end
-
--- function isKillMine(animal)
---     if (DecorExistOn(animal, "lastshot")) then
---         local aid = DecorGetInt(animal, "lastshot")
---         local id = GetPlayerServerId(PlayerId())
---         return (aid == id)
---     end
--- end
-
-function ilegalHuntingAreasAcions(inzone)
-    -- if player is outside of legal hunting zones
+function illlegalHuntingAreasAcions(inzone)
+    -- if player is outside of llegal hunting zones
     if not inzone then
         local _, entity = GetEntityPlayerIsFreeAimingAt(PlayerId(), Citizen.ReturnResultAnyway())
         if entity and IsEntityDead(entity) then
@@ -66,11 +52,11 @@ function ilegalHuntingAreasAcions(inzone)
                             if isAlertNeeded == true then
                                 table.insert(entityPoliceAlert, entity)
                                 TriggerEvent("police:client:policeAlert", GetEntityCoords(entity),
-                                    "ilegal Hunting in area")
+                                    "illlegal Hunting in area")
                             end
                         else
                             table.insert(entityPoliceAlert, entity)
-                            TriggerEvent("police:client:policeAlert", GetEntityCoords(entity), "ilegal Hunting in area")
+                            TriggerEvent("police:client:policeAlert", GetEntityCoords(entity), "illlegal Hunting in area")
                         end
                     end
                 end
@@ -85,19 +71,6 @@ Citizen.CreateThread(function()
     initAnimalsTargting()
     -- SetRelationshipBetweenGroups(5, GetHashKey(GetPlayerPed(-1)), GetHashKey("a_c_mtlion"))
     -- SetRelationshipBetweenGroups(5, GetHashKey("a_c_mtlion"), GetHashKey(GetPlayerPed(-1)))
-    while true do
-        local plyPed = PlayerPedId()
-        local coord = GetEntityCoords(plyPed)
-        for _, zone in pairs(Zones) do
-            if Zones[_]:isPointInside(coord) then
-                inzone = true
-            else
-                inzone = false
-            end
-        end
-        ilegalHuntingAreasAcions(inzone)
-        Wait(500)
-    end
 end)
 
 AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
@@ -143,6 +116,21 @@ AddEventHandler('cad-hunting:client:ForceRemoveAnimalEntity', function(entity)
     DeleteEntity(entity)
 end)
 
+function isPedInHuntingZone(type)
+    local plyPed = PlayerPedId()
+    local coord = GetEntityCoords(plyPed)
+    local legl
+
+    for _, zone in pairs(Zones) do
+        if zone:isPointInside(coord) then
+            return {inzone = true , llegal = zone[1].llegal}
+        else
+            legl = zone[1].llegal
+        end
+    end
+    return {inzone = false , llegal = legl}
+end
+
 -- ============================
 --      Bait
 -- ============================
@@ -150,24 +138,22 @@ RegisterNetEvent('keep-hunting:client:useBait')
 AddEventHandler('keep-hunting:client:useBait', function()
     local plyPed = PlayerPedId()
     local coord = GetEntityCoords(plyPed)
-    if inzone then
+    local inHuntingZone = isPedInHuntingZone()
+    if inHuntingZone.inzone then
         if deployedBaitCooldown <= 0 then
-            -- TaskStartScenarioInPlace(PlayerPedId(), "WORLD_HUMAN_GARDENER_PLANT", 0, true)
-            loadAnimDict('amb@medic@standing@kneel@base')
-            TaskPlayAnim(PlayerPedId(), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
-                false)
+            ClearPedTasks(plyPed)
+            TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
+            --loadAnimDict('amb@medic@standing@kneel@base')
+            --TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
+                --false)
             CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
                 disableMovement = true,
                 disableCarMovement = false,
                 disableMouse = false,
                 disableCombat = true
             }, {}, {}, {}, function()
-                isBaitUsed = true
-                ClearPedTasks(PlayerPedId())
-                if isBaitUsed then
-                    TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-                    createThreadAnimalSpawningTimer(coord)
-                end
+                ClearPedTasks(plyPed)
+                createThreadAnimalSpawningTimer(coord)
             end)
         else
             CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
@@ -188,7 +174,7 @@ function createThreadBaitCooldown()
 end
 
 function createThreadAnimalSpawningTimer(coord)
-    local radius = 100.0
+    local radius = Config.baitSpawnDistance
     local x = coord.x + math.random(-radius, radius)
     local y = coord.y + math.random(-radius, radius)
     local safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
@@ -226,13 +212,16 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(data)
         Wait(10)
     end
     local baitAnimal = CreatePed(28, animal.hash, outPosition.x, outPosition.y, outPosition.z, 0, true, false)
+    SetEntityAsMissionEntity(baitAnimal, true, true)
 
     if DoesEntityExist(baitAnimal) then
         TaskGoToCoordAnyMeans(baitAnimal, coords, 2.0, 0, 786603, 0)
         createThreadAnimalTraveledDistanceToBaitTracker(coords, baitAnimal)
-        isBaitUsed = false
+        TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
+        print("debug: spwan success")
+    else
+        print("debug: spwan failed")
     end
-    print("debug: spwan success")
 end)
 
 -- ============================
