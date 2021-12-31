@@ -93,20 +93,24 @@ AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
 end)
 
 RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn')
-AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, outPosition)
+AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, outPosition, was_llegal)
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
-    local C_animal = choiceAnimal(Animals)
+    local C_animal = choiceAnimal(Animals, was_llegal)
 
     if C_animal ~= nil then
         TriggerClientEvent('keep-hunting:client:spawnAnimal', source, {coord, outPosition, C_animal})
     end
 end)
 
-function choiceAnimal(Rarities)
+function choiceAnimal(Rarities, was_llegal)
     local temp = {}
     for key, value in pairs(Rarities) do
-        table.insert(temp, value.spwanRarity)
+        if was_llegal then
+            table.insert(temp, value.spwanRarity[2])
+        else
+            table.insert(temp, value.spwanRarity[1])
+        end
     end
     if temp ~= nil then
         local sample = Alias_table_wrapper(temp)
@@ -123,10 +127,9 @@ CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)", {{"model", "A
         TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
     end, 'admin')
 
-CoreName.Commands.Add("clearTask", "Clear Animations", {}, false,
-    function(source)
-        TriggerClientEvent('keep-hunting:client:clearTask',source)
-    end, 'user')
+CoreName.Commands.Add("clearTask", "Clear Animations", {}, false, function(source)
+    TriggerClientEvent('keep-hunting:client:clearTask', source)
+end, 'user')
 
 CoreName.Commands.Add('addBait', 'add bait to player inventory (Admin Only)', {}, false, function(source)
     local src = source

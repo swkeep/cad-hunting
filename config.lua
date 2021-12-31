@@ -15,7 +15,7 @@ Config.SpawningTimer = 5000 -- script will wait until "SpawningTimer" time out t
 Config.AnimalsEatingSpeed = 7500 -- how much animals will wait in baits location
 Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 
-Config.BaitPlacementSpeed = math.random(3000, 3000) 
+Config.BaitPlacementSpeed = math.random(3000, 3000)
 Config.SlaughteringSpeed = math.random(1000, 5000)
 
 Config.baitSpawnDistance = 100 -- animal spwan radius from placed bait
@@ -30,63 +30,63 @@ Config.AnimalBlip = {
 
 Config.Animals = {{
     model = "a_c_deer",
-    spwanRarity = 10,
+    spwanRarity = {10, 90}, -- {in llegal are spawn chance , in illegal area spawn chance}
     hash = -664053099,
     item = "Deer Horns",
     invItemName = "meatdeer",
     price = 150
 }, {
     model = "a_c_pig",
-    spwanRarity = 0,
+    spwanRarity = {0, 15},
     hash = -1323586730,
     item = "Pig Pelt",
     invItemName = "meatpig",
     price = 150
 }, {
     model = "a_c_boar",
-    spwanRarity = 10,
+    spwanRarity = {10, 15},
     hash = -832573324,
     item = "Boar Tusks",
     invItemName = "meatboar",
     price = 150
 }, {
     model = "a_c_mtlion",
-    spwanRarity = 90,
+    spwanRarity = {90, 10},
     hash = 307287994,
     item = "Coager Claws",
     invItemName = "meatlion",
     price = 150
 }, {
     model = "a_c_cow",
-    spwanRarity = 0,
+    spwanRarity = {0, 0},
     hash = -50684386,
     item = "Cow Pelt",
     invItemName = "meatcow",
     price = 550
 }, {
     model = "a_c_coyote",
-    spwanRarity = 10,
+    spwanRarity = {10, 18},
     hash = 1682622302,
     item = "Coyote Pelt",
     invItemName = "meatcoyote",
     price = 250
 }, {
     model = "a_c_rabbit_01",
-    spwanRarity = 0,
+    spwanRarity = {0, 0},
     hash = -541762431,
     item = "Rabbit Fur",
     invItemName = "meatrabbit",
     price = 140
 }, {
     model = "a_c_pigeon",
-    spwanRarity = 0,
+    spwanRarity = {0, 0},
     hash = 111281960,
     item = "Bird Feather",
     invItemName = "meatbird",
     price = 130
 }, {
     model = "a_c_seagull",
-    spwanRarity = 0,
+    spwanRarity = {0, 0},
     hash = -745300483,
     item = "Bird Feather",
     invItemName = "meatbird",

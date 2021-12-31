@@ -163,7 +163,7 @@ AddEventHandler('keep-hunting:client:useBait', function()
                 disableCombat = true
             }, {}, {}, {}, function()
                 ClearPedTasks(plyPed)
-                createThreadAnimalSpawningTimer(coord)
+                createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal)
             end)
         else
             CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
@@ -183,7 +183,7 @@ function createThreadBaitCooldown()
     end)
 end
 
-function createThreadAnimalSpawningTimer(coord)
+function createThreadAnimalSpawningTimer(coord, was_llegal)
     local outPosition = getSpawnLocation(coord)
 
     if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
@@ -195,7 +195,7 @@ function createThreadAnimalSpawningTimer(coord)
             end
             if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
-                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition)
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal)
             else
                 CoreName.Functions.Notify("Failed to triger bait!")
             end
