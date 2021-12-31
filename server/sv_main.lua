@@ -40,12 +40,6 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
     end
 end)
 
-RegisterServerEvent("cad-hunting:server:spawnanimals")
-AddEventHandler("cad-hunting:server:spawnanimals", function()
-    local _source = source
-    TriggerClientEvent("cad-hunting:client:spawnanimals", -1)
-end)
-
 -- ============================
 --   SELLING
 -- ============================
@@ -99,7 +93,7 @@ AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, 
     local C_animal = choiceAnimal(Animals, was_llegal)
 
     if C_animal ~= nil then
-        TriggerClientEvent('keep-hunting:client:spawnAnimal', source, {coord, outPosition, C_animal})
+        TriggerClientEvent('keep-hunting:client:spawnAnimal', source, coord, outPosition, C_animal, was_llegal)
     end
 end)
 
@@ -122,9 +116,9 @@ end
 --      Commands
 -- ============================
 
-CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)", {{"model", "Animal Model"}}, false,
-    function(source, args)
-        TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1])
+CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)",
+    {{"model", "Animal Model"}, {"was_llegal", "area of hunt true/false"}}, false, function(source, args)
+        TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1], args[2])
     end, 'admin')
 
 CoreName.Commands.Add("clearTask", "Clear Animations", {}, false, function(source)
