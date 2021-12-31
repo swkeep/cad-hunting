@@ -104,19 +104,6 @@ function loadAnimDict(dict)
     end
 end
 
-function weightedRandom(Rarities)
-    local Index = math.random()
-    local HighestRarity = "Common"
-
-    for RarityName, Value in pairs(Rarities) do
-        if Index >= Value and Value >= Rarities[HighestRarity] then
-            HighestRarity = RarityName
-        end
-    end
-
-    return HighestRarity
-end
-
 -- animals Smart Flee
 
 function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
@@ -152,16 +139,6 @@ function getSpawnLocation(coord)
     local foundSafeSpot = true
     local index = 0
 
-    -- try to get spwan postion 
-    -- while foundSafeSpot == true and index <= 100 do
-    --     local x = coord.x + math.random(-radius, radius)
-    --     local y = coord.y + math.random(-radius, radius)
-    --     safeCoord, outPosition = GetSafeCoordForPed(x, y, coord.z, false, 16)
-    --     if outPosition.x ~= 0 or outPosition.y ~= 0 or outPosition.z ~= 0 then
-    --         foundSafeSpot = false
-    --     end
-    --     index = index + 1
-    -- end
     while foundSafeSpot == true and index <= 100 do
         posX = coord.x + math.random(-radius, radius)
         posY = coord.y + math.random(-radius, radius)
