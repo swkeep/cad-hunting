@@ -212,20 +212,3 @@ function makeEntityFaceEntity(entity1, entity2)
 
     SetEntityHeading(entity1, heading)
 end
-
--- function handleDecorator(animal)
---     if (DecorExistOn(animal, "lastshot")) then
---         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
---     else
---         DecorRegister("lastshot", 3)
---         DecorSetInt(animal, "lastshot", GetPlayerServerId(PlayerId()))
---     end
--- end
-
--- function isKillMine(animal)
---     if (DecorExistOn(animal, "lastshot")) then
---         local aid = DecorGetInt(animal, "lastshot")
---         local id = GetPlayerServerId(PlayerId())
---         return (aid == id)
---     end
--- end

@@ -83,7 +83,10 @@ RegisterServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
 AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
-    Player.Functions.RemoveItem("huntingbait", 1)
+    if Player.Functions.RemoveItem("huntingbait", 1) then
+        return true
+    end
+    return false
 end)
 
 RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn')
