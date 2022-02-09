@@ -33,7 +33,6 @@ function createCustomBlips(data)
             SetBlipAlpha(RadiusBlip, 64)
         else
             SetBlipSprite(Blip, 442)
-
             BeginTextCommandSetBlipName("STRING")
             AddTextComponentString("Sell Meat")
             EndTextCommandSetBlipName(Blip)
@@ -80,6 +79,12 @@ function initHuntingShopNpcQbTargets(HuntingShopNpc)
             }},
             distance = 2.5
         })
+
+        StoreBlip = AddBlipForCoord(v.BlipsCoords)
+        SetBlipColour(StoreBlip, 0)
+        SetBlipSprite(StoreBlip, 626)
+        SetBlipScale(StoreBlip, 1.0)
+        SetBlipColour(StoreBlip, 1)
     end
 end
 

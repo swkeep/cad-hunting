@@ -30,64 +30,30 @@
 ```
 
 - hunting shop config
-- Add to qb-shops/config.lua as showed in code
+- Modify qb-shops/server/main.lua as showed in code
 
-```lua
-Config.Products = {
-    .
-    .
-    .
-    ["huntingshop"] = {
-        [1] = {
-            name = 'weapon_musket',
-            price = 500,
-            amount = 2,
-            info = {},
-            type = 'item',
-            slot = 1,
-        },
-        [2] = {
-            name = 'shotgun_ammo',
-            price = 100,
-            amount = 2,
-            info = {},
-            type = 'item',
-            slot = 2,
-        },
-        [3] = {
-            name = 'huntingbait',
-            price = 200,
-            amount = 50,
-            info = {},
-            type = 'item',
-            slot = 3,
-        },
-    },
-}
-
-Config.Locations = {
-    .
-    .
-    .
-    ,["oneandonlyhuntingshop"] = {
-        ["label"] = "Hunting Shop",
-        ["type"] = "normal",
-        ["coords"] = {
-            [1] = vector3(-678.91, 5837.84, 17.33)
-        },
-        ["products"] = Config.Products["huntingshop"],
-        ["showblip"] = true,
-    },
-}
+```lua 
+RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
+    Config.Locations[shop]["products"][itemData.slot].amount =
+        Config.Locations[shop]["products"][itemData.slot].amount - amount
+    if Config.Locations[shop]["products"][itemData.slot].amount <= 0 then
+        Config.Locations[shop]["products"][itemData.slot].amount = 0
+    end
+    TriggerClientEvent('qb-shops:client:SetShopItems', -1, shop, Config.Locations[shop]["products"])
+end)
 ```
-#fix shop icon 
-* to do that you need to add code below after line 163 in qb-shops/client/main.lua
 
 ```lua
-elseif Config.Locations[store]["products"] == Config.Products["huntingshop"] then
-				SetBlipSprite(StoreBlip, 626)
-				SetBlipScale(StoreBlip, 1.0)
-				SetBlipColour(StoreBlip,1)
+RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
+    if shop ~= "huntingshop" then
+        Config.Locations[shop]["products"][itemData.slot].amount =
+            Config.Locations[shop]["products"][itemData.slot].amount - amount
+        if Config.Locations[shop]["products"][itemData.slot].amount <= 0 then
+            Config.Locations[shop]["products"][itemData.slot].amount = 0
+        end
+        TriggerClientEvent('qb-shops:client:SetShopItems', -1, shop, Config.Locations[shop]["products"])
+    end
+end)
 ```
 
 # Config.lua
