@@ -80,7 +80,7 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
 end)
 
 AddEventHandler('cad-hunting:client:sellREQ', function()
-    TriggerServerEvent('cad-hunting:server:sellmeat', animal)
+    TriggerServerEvent('cad-hunting:server:sellmeat')
 end)
 
 RegisterNetEvent('cad-hunting:client:ForceRemoveAnimalEntity')

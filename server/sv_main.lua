@@ -17,18 +17,15 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
         if v.model == data.model then
             -- check if another player already slaughtered or not
             if animalsEnity ~= nil then
-                local isAleadySlaughtered = false
-                for _, v in pairs(animalsEnity) do
-                    if v == entity then
-                        TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
-                        TriggerClientEvent('cad-hunting:client:ForceRemoveAnimalEntity', _source, entity)
-                        isAleadySlaughtered = true
-                    end
-                end
+                local isAleadySlaughtered = isAleadySlaughtered(entity)
+
                 if isAleadySlaughtered == false then
                     setHash(entity) -- prevent player to slaughter twice
                     Player.Functions.AddItem(v.invItemName, 1)
                     TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
+                else 
+                    TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
+                    TriggerClientEvent('cad-hunting:client:ForceRemoveAnimalEntity', _source, entity)
                 end
             else
                 -- init animalsEnity table
@@ -150,6 +147,19 @@ end)
 -- ============================
 --      Functions
 -- ============================
+function isAleadySlaughtered(entity)
+    local isAleadySlaughtered = false
+
+    for i = #animalsEnity, 1, -1 do
+        local value = animalsEnity[i]
+        if value == entity then
+            isAleadySlaughtered = true
+            break
+        end
+    end
+    return isAleadySlaughtered
+end
+
 function setHash(entity)
     table.insert(animalsEnity, entity)
 end

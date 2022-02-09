@@ -175,7 +175,7 @@ function createDespawnThread(baitAnimal, was_llegal)
             elseif isDead then
                 StopGameplayCamShaking(true)
                 local callPoliceChance = callPoliceChance()
-                if was_llegal and callPoliceChance == 1 then
+                if was_llegal == false and callPoliceChance == 1 then
                     Config.llegalHuntingNotification(animalCoord)
                 end
                 finished = true
@@ -183,7 +183,7 @@ function createDespawnThread(baitAnimal, was_llegal)
             if isEntityInWater or distance >= range then
                 if isEntityInWater then
                     exports['qb-core']:GetCoreObject().Functions.Notify(
-                        "Animal got baited and drowned, stay away from water!")
+                        "Animal drowned, stay away from water!")
                     SetModelAsNoLongerNeeded(baitAnimal)
                     SetPedAsNoLongerNeeded(baitAnimal)
                 end
