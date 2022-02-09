@@ -31,6 +31,7 @@ end
 
 function initBlips()
     initSellspotsQbTargets(Config.SellSpots)
+    initHuntingShopNpcQbTargets(Config.HuntingShopNpc)
     createCustomBlips(Config.SellSpots)
     createCustomBlips(Config.HuntingArea)
 end

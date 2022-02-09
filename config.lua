@@ -111,6 +111,64 @@ Config.HuntingArea = {{
     llegal = false
 }}
 
+Config.Products = {
+    ["huntingshop"] = {
+        [1] = {
+            name = 'weapon_musket',
+            price = 500,
+            amount = 2,
+            info = {},
+            type = 'item',
+            slot = 1,
+        },
+        [2] = {
+            name = 'shotgun_ammo',
+            price = 100,
+            amount = 2,
+            info = {},
+            type = 'item',
+            slot = 2,
+        },
+        [3] = {
+            name = 'huntingbait',
+            price = 200,
+            amount = 50,
+            info = {},
+            type = 'item',
+            slot = 3,
+        },
+    },
+}
+
+Config.Locations = {
+    ["huntingShop1"] = {
+        ["label"] = "Hunting Shop",
+        ["type"] = "normal",
+        ["coords"] = {
+            [1] = vector3(-678.91, 5837.84, 17.33)
+        },
+        ["products"] = Config.Products["huntingshop"],
+    },
+}
+
+Config.HuntingShopNpc = {{
+    BlipsCoords = vector3(-679.82, 5838.92, 17.33),
+    SellerNpc = {
+        model = 'ig_hunter', -- This is the ped model that is going to be spawning at the given coords
+        coords = vector4(-679.82, 5838.92, 17.33, 217.45), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
+        minusOne = true, -- Set this to true if your ped is hovering above the ground but you want it on the ground (OPTIONAL)
+        freeze = true, -- Set this to true if you want the ped to be frozen at the given coords (OPTIONAL)
+        invincible = true, -- Set this to true if you want the ped to not take any damage from any source (OPTIONAL)
+        blockevents = true, -- Set this to true if you don't want the ped to react the to the environment (OPTIONAL)
+        -- animDict = 'abigail_mcs_1_concat-0', -- This is the animation dictionairy to load the animation to play from (OPTIONAL)
+        -- anim = 'csb_abigail_dual-0', -- This is the animation that will play chosen from the animDict, this will loop the whole time the ped is spawned (OPTIONAL)
+        flag = 1, -- This is the flag of the animation to play, for all the flags, check the TaskPlayAnim native here https://docs.fivem.net/natives/?_0x5AB552C6 (OPTIONAL)
+        -- scenario = 'WORLD_HUMAN_AA_COFFEE', -- This is the scenario that will play the whole time the ped is spawned, this cannot pair with anim and animDict (OPTIONAL)
+        currentpednumber = 0 -- This is the current ped number, this will be assigned when spawned, you can leave this out because it will always be created (OPTIONAL)
+    }
+}
+}
+
 Config.SellSpots = {{
     BlipsCoords = vector3(570.34, 2796.46, 42.01),
     SellerNpc = {

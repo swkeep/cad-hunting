@@ -1,4 +1,5 @@
 local DEBUG = Config.DEBUG
+local CoreName = exports['qb-core']:GetCoreObject()
 
 function createCustomBlips(data)
     for _, v in pairs(data) do
@@ -45,7 +46,7 @@ end
 
 -- init qb-target for selling spots 
 function initSellspotsQbTargets(sellspot)
-    for _, v in pairs(Config.SellSpots) do
+    for _, v in pairs(sellspot) do
         -- spwan seller npcs
         exports['qb-target']:SpawnPed({
             [_] = v.SellerNpc
@@ -57,6 +58,25 @@ function initSellspotsQbTargets(sellspot)
                 event = "cad-hunting:client:sellREQ",
                 icon = "fas fa-sack-dollar",
                 label = "Sell All"
+            }},
+            distance = 2.5
+        })
+    end
+end
+
+function initHuntingShopNpcQbTargets(HuntingShopNpc)
+    for _, v in pairs(HuntingShopNpc) do
+        -- spwan seller npcs
+        exports['qb-target']:SpawnPed({
+            [_] = v.SellerNpc
+        })
+
+        -- init qb-target for sellers
+        exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
+            options = {{
+                event = "keep-hunting:marketshop",
+                icon = "fas fa-gun",
+                label = "Hunting Shop"
             }},
             distance = 2.5
         })
@@ -212,3 +232,40 @@ function makeEntityFaceEntity(entity1, entity2)
 
     SetEntityHeading(entity1, heading)
 end
+
+RegisterNetEvent('keep-hunting:marketshop')
+AddEventHandler('keep-hunting:marketshop', function(shop, itemData, amount)
+local PlayerPed = PlayerPedId()
+local PlayerPos = GetEntityCoords(PlayerPed)
+
+for shop, _ in pairs(Config.Locations) do
+   local position = Config.Locations[shop]["coords"]
+   for _, loc in pairs(position) do
+      local dist = #(PlayerPos - vector3(loc["x"], loc["y"], loc["z"]))
+      print(dist)
+      if dist < 3 then
+         local ShopItems = {}
+         ShopItems.items = {}
+         exports['qb-core']:GetCoreObject().Functions.TriggerCallback('qb-shops:server:getLicenseStatus', function(result)
+         ShopItems.label = Config.Locations[shop]["label"]
+         if Config.Locations[shop].type == "huntingLicense" then
+            -- potential use : if we have hunting License to get bait...
+            -- if result then
+            --    ShopItems.items = Config.Locations[shop]["products"]
+            -- else
+            --    for i = 1, #Config.Locations[shop]["products"] do
+            --       if not Config.Locations[shop]["products"][i].requiresLicense then
+            --          table.insert(ShopItems.items, Config.Locations[shop]["products"][i])
+            --       end
+            --    end
+            -- end
+         else
+            ShopItems.items = Config.Locations[shop]["products"]
+         end
+         ShopItems.slots = 30
+         TriggerServerEvent("inventory:server:OpenInventory", "shop", "Itemshop_"..shop, ShopItems)
+         end)
+      end
+   end
+end
+end)
