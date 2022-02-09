@@ -202,8 +202,7 @@ function createDespawnThread(baitAnimal, was_llegal)
             end
             if isEntityInWater or distance >= range then
                 if isEntityInWater then
-                    exports['qb-core']:GetCoreObject().Functions.Notify(
-                        "Animal drowned, stay away from water!")
+                    exports['qb-core']:GetCoreObject().Functions.Notify("Animal drowned, stay away from water!")
                     SetModelAsNoLongerNeeded(baitAnimal)
                     SetPedAsNoLongerNeeded(baitAnimal)
                 end
@@ -216,7 +215,7 @@ function createDespawnThread(baitAnimal, was_llegal)
     end)
 end
 
---@type number
+-- @type number
 function callPoliceChance()
     return Alias_table_wrapper(Config.callPoliceChance)
 end
@@ -235,37 +234,9 @@ end
 
 RegisterNetEvent('keep-hunting:marketshop')
 AddEventHandler('keep-hunting:marketshop', function(shop, itemData, amount)
-local PlayerPed = PlayerPedId()
-local PlayerPos = GetEntityCoords(PlayerPed)
-
-for shop, _ in pairs(Config.Locations) do
-   local position = Config.Locations[shop]["coords"]
-   for _, loc in pairs(position) do
-      local dist = #(PlayerPos - vector3(loc["x"], loc["y"], loc["z"]))
-      print(dist)
-      if dist < 3 then
-         local ShopItems = {}
-         ShopItems.items = {}
-         exports['qb-core']:GetCoreObject().Functions.TriggerCallback('qb-shops:server:getLicenseStatus', function(result)
-         ShopItems.label = Config.Locations[shop]["label"]
-         if Config.Locations[shop].type == "huntingLicense" then
-            -- potential use : if we have hunting License to get bait...
-            -- if result then
-            --    ShopItems.items = Config.Locations[shop]["products"]
-            -- else
-            --    for i = 1, #Config.Locations[shop]["products"] do
-            --       if not Config.Locations[shop]["products"][i].requiresLicense then
-            --          table.insert(ShopItems.items, Config.Locations[shop]["products"][i])
-            --       end
-            --    end
-            -- end
-         else
-            ShopItems.items = Config.Locations[shop]["products"]
-         end
-         ShopItems.slots = 30
-         TriggerServerEvent("inventory:server:OpenInventory", "shop", "Itemshop_"..shop, ShopItems)
-         end)
-      end
-   end
-end
+    local ShopItems = {}
+    ShopItems.label = Config.Shop["label"]
+    ShopItems.items = Config.HuntingShopItems
+    ShopItems.slots = 30
+    TriggerServerEvent("inventory:server:OpenInventory", "shop", "Itemshop_" .. Config.Shop["name"], ShopItems)
 end)

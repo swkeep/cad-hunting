@@ -111,44 +111,44 @@ Config.HuntingArea = {{
     llegal = false
 }}
 
-Config.Products = {
-    ["huntingshop"] = {
-        [1] = {
-            name = 'weapon_musket',
-            price = 500,
-            amount = 2,
-            info = {},
-            type = 'item',
-            slot = 1,
-        },
-        [2] = {
-            name = 'shotgun_ammo',
-            price = 100,
-            amount = 2,
-            info = {},
-            type = 'item',
-            slot = 2,
-        },
-        [3] = {
-            name = 'huntingbait',
-            price = 200,
-            amount = 50,
-            info = {},
-            type = 'item',
-            slot = 3,
-        },
+Config.HuntingShopItems = {
+    [1] = {
+        name = 'weapon_musket',
+        price = 500,
+        amount = 2,
+        info = {},
+        type = 'item',
+        slot = 1,
+    },
+    [2] = {
+        name = 'shotgun_ammo',
+        price = 100,
+        amount = 2,
+        info = {},
+        type = 'item',
+        slot = 2,
+    },
+    [3] = {
+        name = 'huntingbait',
+        price = 200,
+        amount = 50,
+        info = {},
+        type = 'item',
+        slot = 3,
+    },
+    [4] = {
+        name = 'weapon_knife',
+        price = 200,
+        amount = 1,
+        info = {},
+        type = 'item',
+        slot = 4,
     },
 }
 
-Config.Locations = {
-    ["huntingShop1"] = {
-        ["label"] = "Hunting Shop",
-        ["type"] = "normal",
-        ["coords"] = {
-            [1] = vector3(-678.91, 5837.84, 17.33)
-        },
-        ["products"] = Config.Products["huntingshop"],
-    },
+Config.Shop = {
+    ["name"] = "huntingshop",
+    ["label"] = "Hunting Shop",
 }
 
 Config.HuntingShopNpc = {{
@@ -184,20 +184,5 @@ Config.SellSpots = {{
         -- scenario = 'WORLD_HUMAN_AA_COFFEE', -- This is the scenario that will play the whole time the ped is spawned, this cannot pair with anim and animDict (OPTIONAL)
         currentpednumber = 0 -- This is the current ped number, this will be assigned when spawned, you can leave this out because it will always be created (OPTIONAL)
     }
-} -- {
---     BlipsCoords = vector3(-391.88, 6053.16, 31.5),
---     SellerNpc = {
---         model = 'a_m_m_indian_01', 
---         coords = vector4(-391.88, 6053.16, 31.5, 126.23),
---         minusOne = true,
---         freeze = true,
---         invincible = true,
---         blockevents = true,
---         --animDict = 'abigail_mcs_1_concat-0',
---         --anim = 'csb_abigail_dual-0', 
---         flag = 1, 
---         --scenario = 'WORLD_HUMAN_AA_COFFEE',
---         currentpednumber = 0
---     }
--- }
+}
 }
