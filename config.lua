@@ -28,7 +28,7 @@ Config.AnimalBlip = {
     color = 5
 }
 
-Config.callPoliceChance = {25 , 75} -- 25 + 75 = 100% ( 25% chance to call police )
+Config.callPoliceChance = {25, 75} -- 25 + 75 = 100% ( 25% chance to call police )
 
 Config.llegalHuntingNotification = function(animalCoord)
     TriggerEvent("police:client:policeAlert", animalCoord, "illlegal Hunting in area")
@@ -118,7 +118,7 @@ Config.HuntingShopItems = {
         amount = 2,
         info = {},
         type = 'item',
-        slot = 1,
+        slot = 1
     },
     [2] = {
         name = 'shotgun_ammo',
@@ -126,7 +126,7 @@ Config.HuntingShopItems = {
         amount = 2,
         info = {},
         type = 'item',
-        slot = 2,
+        slot = 2
     },
     [3] = {
         name = 'huntingbait',
@@ -134,7 +134,7 @@ Config.HuntingShopItems = {
         amount = 50,
         info = {},
         type = 'item',
-        slot = 3,
+        slot = 3
     },
     [4] = {
         name = 'weapon_knife',
@@ -142,13 +142,13 @@ Config.HuntingShopItems = {
         amount = 1,
         info = {},
         type = 'item',
-        slot = 4,
-    },
+        slot = 4
+    }
 }
 
 Config.Shop = {
     ["name"] = "huntingshop",
-    ["label"] = "Hunting Shop",
+    ["label"] = "Hunting Shop"
 }
 
 Config.HuntingShopNpc = {{
@@ -166,8 +166,7 @@ Config.HuntingShopNpc = {{
         -- scenario = 'WORLD_HUMAN_AA_COFFEE', -- This is the scenario that will play the whole time the ped is spawned, this cannot pair with anim and animDict (OPTIONAL)
         currentpednumber = 0 -- This is the current ped number, this will be assigned when spawned, you can leave this out because it will always be created (OPTIONAL)
     }
-}
-}
+}}
 
 Config.SellSpots = {{
     BlipsCoords = vector3(570.34, 2796.46, 42.01),
@@ -184,5 +183,4 @@ Config.SellSpots = {{
         -- scenario = 'WORLD_HUMAN_AA_COFFEE', -- This is the scenario that will play the whole time the ped is spawned, this cannot pair with anim and animDict (OPTIONAL)
         currentpednumber = 0 -- This is the current ped number, this will be assigned when spawned, you can leave this out because it will always be created (OPTIONAL)
     }
-}
-}
+}}
