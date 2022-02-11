@@ -53,16 +53,3 @@ RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amo
     end
 end)
 ```
-
-# Config.lua
-
-```lua
-Config.Animals = {{
-    model = "a_c_deer", <---- model name 
-    spwanRarity = 10, <---- how rare it's gonna be spwaned by server
-    hash = -664053099, <---- model hash 
-    item = "Deer Horns",
-    invItemName = "meatdeer", <---- qb-core/shared.lua items
-    price = 150 <---- item price
-}}
-```

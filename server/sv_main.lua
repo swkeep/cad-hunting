@@ -23,9 +23,10 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
                     setHash(entity) -- prevent player to slaughter twice
                     Player.Functions.AddItem(v.invItemName, 1)
                     TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
+                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1 ,entity)
                 else 
                     TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
-                    TriggerClientEvent('cad-hunting:client:ForceRemoveAnimalEntity', _source, entity)
+                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
                 end
             else
                 -- init animalsEnity table

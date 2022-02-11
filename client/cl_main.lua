@@ -71,7 +71,6 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
                         ClearPedTasks(GetPlayerPed(-1))
                         TriggerServerEvent('cad-hunting:server:AddItem', animal, entity)
                         Citizen.Wait(100)
-                        DeleteEntity(entity)
                     end)
             else
                 CoreName.Functions.Notify("You dont have knife.")
@@ -84,8 +83,8 @@ AddEventHandler('cad-hunting:client:sellREQ', function()
     TriggerServerEvent('cad-hunting:server:sellmeat')
 end)
 
-RegisterNetEvent('cad-hunting:client:ForceRemoveAnimalEntity')
-AddEventHandler('cad-hunting:client:ForceRemoveAnimalEntity', function(entity)
+RegisterNetEvent('keep-hunting:client:ForceRemoveAnimalEntity')
+AddEventHandler('keep-hunting:client:ForceRemoveAnimalEntity', function(entity)
     DeleteEntity(entity)
 end)
 
