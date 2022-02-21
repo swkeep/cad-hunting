@@ -38,56 +38,56 @@ Config.Animals = {{
     model = "a_c_deer",
     spwanRarity = {10, 90}, -- {llegal area spawn chance , illegal area spawn chance}
     hash = -664053099,
-    Loots = {{"meatdeer", 100}, {"plastic", 50}}, -- { {"ITEMNAME" , Chance} , {"ITEMNAME" , Chance} ,  ....}
-    price = 150
+    --{ {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
+    -- note: 100% chance means every time players gonna get that item and scirpt will not use RNG system.
+
+    -- IMPORTANT: if there are two or more rewards with the same name for example "meatpig"
+    -- script will skip other prices and only uses the first seen value.
+
+    -- IMPORTANT: if you leave price with nil value player can't sell those items to Vendor. for example plastic in here
+    Loots = {{"meatdeer", 100, 150}, {"plastic", 50}} 
 }, {
     model = "a_c_pig",
     spwanRarity = {0, 15},
     hash = -1323586730,
-    Loots = {{"meatpig", 100}, {"plastic", 50}},
-    price = 150
+    -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
+    Loots = {{"meatpig", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_boar",
     spwanRarity = {10, 15},
     hash = -832573324,
-    Loots = {{"meatpig", 100}, {"plastic", 50}},
-    price = 150
+    
+    Loots = {{"meatpig", 100}, {"plastic", 50}}
 }, {
     model = "a_c_mtlion",
     spwanRarity = {90, 10},
     hash = 307287994,
-    Loots = {{"meatlion", 100}, {"plastic", 50}},
-    price = 150
+    Loots = {{"meatlion", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_cow",
     spwanRarity = {0, 0},
     hash = -50684386,
-    Loots = {{"meatcow", 100}, {"plastic", 50}},
-    price = 550
+    Loots = {{"meatcow", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_coyote",
     spwanRarity = {10, 18},
     hash = 1682622302,
-    Loots = {{"meatcoyote", 100}, {"plastic", 50}},
-    price = 250
+    Loots = {{"meatcoyote", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_rabbit_01",
     spwanRarity = {0, 0},
     hash = -541762431,
-    Loots = {{"meatrabbit", 100}, {"plastic", 50}},
-    price = 140
+    Loots = {{"meatrabbit", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_pigeon",
     spwanRarity = {0, 0},
     hash = 111281960,
-    Loots = {{"meatbird", 100}, {"plastic", 50}},
-    price = 130
+    Loots = {{"meatbird", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_seagull",
     spwanRarity = {0, 0},
     hash = -745300483,
-    Loots = {{"meatbird", 100}, {"plastic", 50}},
-    price = 110
+    Loots = {{"meatbird", 100}, {"plastic", 50}}
 }}
 
 Config.HuntingArea = {{

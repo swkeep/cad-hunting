@@ -92,13 +92,19 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
         if Player.PlayerData.items ~= nil and next(Player.PlayerData.items) ~= nil then
             for k, v in pairs(Player.PlayerData.items) do
                 if Player.PlayerData.items[k] ~= nil then
-                    for _, v in pairs(Config.Animals) do
-                        if v.invItemName == Player.PlayerData.items[k].name then
-                            price = price + (v.price * Player.PlayerData.items[k].amount)
-                            Player.Functions.RemoveItem(Player.PlayerData.items[k].name,
-                                Player.PlayerData.items[k].amount, k)
+
+                    for key, value in pairs(Config.Animals) do
+                        for key, value in pairs(value["Loots"]) do
+                            if value[1] == Player.PlayerData.items[k].name and Player.PlayerData.items[k].amount ~= 0 then
+                                if value[3] ~= nil then
+                                    price = price + (value[3] * Player.PlayerData.items[k].amount)
+                                    Player.Functions.RemoveItem(Player.PlayerData.items[k].name,
+                                        Player.PlayerData.items[k].amount, k)
+                                end
+                            end
                         end
                     end
+
                 end
             end
             if price == 0 then
