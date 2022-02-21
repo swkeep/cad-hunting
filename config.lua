@@ -38,64 +38,55 @@ Config.Animals = {{
     model = "a_c_deer",
     spwanRarity = {10, 90}, -- {llegal area spawn chance , illegal area spawn chance}
     hash = -664053099,
-    item = "Deer Horns",
-    invItemName = "meatdeer",
+    Loots = {{"meatdeer", 100}, {"plastic", 50}}, -- { {"ITEMNAME" , Chance} , {"ITEMNAME" , Chance} ,  ....}
     price = 150
 }, {
     model = "a_c_pig",
     spwanRarity = {0, 15},
     hash = -1323586730,
-    item = "Pig Pelt",
-    invItemName = "meatpig",
+    Loots = {{"meatpig", 100}, {"plastic", 50}},
     price = 150
 }, {
     model = "a_c_boar",
     spwanRarity = {10, 15},
     hash = -832573324,
-    item = "Boar Tusks",
-    invItemName = "meatboar",
+    Loots = {{"meatpig", 100}, {"plastic", 50}},
     price = 150
 }, {
     model = "a_c_mtlion",
     spwanRarity = {90, 10},
     hash = 307287994,
-    item = "Coager Claws",
-    invItemName = "meatlion",
+    Loots = {{"meatlion", 100}, {"plastic", 50}},
     price = 150
 }, {
     model = "a_c_cow",
     spwanRarity = {0, 0},
     hash = -50684386,
-    item = "Cow Pelt",
-    invItemName = "meatcow",
+    Loots = {{"meatcow", 100}, {"plastic", 50}},
     price = 550
 }, {
     model = "a_c_coyote",
     spwanRarity = {10, 18},
     hash = 1682622302,
-    item = "Coyote Pelt",
-    invItemName = "meatcoyote",
+    Loots = {{"meatcoyote", 100}, {"plastic", 50}},
     price = 250
 }, {
     model = "a_c_rabbit_01",
     spwanRarity = {0, 0},
     hash = -541762431,
-    item = "Rabbit Fur",
-    invItemName = "meatrabbit",
+    Loots = {{"meatrabbit", 100}, {"plastic", 50}},
     price = 140
 }, {
     model = "a_c_pigeon",
     spwanRarity = {0, 0},
     hash = 111281960,
-    item = "Bird Feather",
-    invItemName = "meatbird",
+    Loots = {{"meatbird", 100}, {"plastic", 50}},
     price = 130
 }, {
     model = "a_c_seagull",
     spwanRarity = {0, 0},
     hash = -745300483,
-    item = "Bird Feather",
-    invItemName = "meatbird",
+    Loots = {{"meatbird", 100}, {"plastic", 50}},
     price = 110
 }}
 

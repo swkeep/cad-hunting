@@ -17,26 +17,67 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
         if v.model == data.model then
             -- check if another player already slaughtered or not
             if animalsEnity ~= nil then
-                local isAleadySlaughtered = isAleadySlaughtered(entity)
-
-                if isAleadySlaughtered == false then
+                if isAleadySlaughtered(entity) == false then
                     setHash(entity) -- prevent player to slaughter twice
-                    Player.Functions.AddItem(v.invItemName, 1)
-                    TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
-                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1 ,entity)
-                else 
+                    choiceRewardsForPlayer(v.Loots, _source, Player)
+                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
+                else
                     TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
                     TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
                 end
             else
                 -- init animalsEnity table
                 setHash(entity) -- prevent player to slaughter twice
-                Player.Functions.AddItem(v.invItemName, 1)
-                TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
+                choiceRewardsForPlayer(v.Loots, _source, Player)
             end
         end
     end
 end)
+
+function choiceRewardsForPlayer(LootTable, _source, Player)
+    local tmpRewardChances = {}
+    local DefiniteRewardsList = {}
+    local ChanceRewardsList = {}
+    local CalculatedPlayerRwardList = {}
+
+    for key, value in pairs(LootTable) do
+        -- value[1] contains item names
+        -- value[2] contains lootTable Chances
+
+        -- Separate Definite and Chance Rewarding
+        if value[2] == 100 then
+            -- Definite
+            table.insert(DefiniteRewardsList, value[1])
+        else
+            -- Chance
+            table.insert(tmpRewardChances, {value[1], value[2]})
+        end
+    end
+
+    if tmpRewardChances ~= nil then
+        ChanceRewardsList = CompleteRestOfChancesData(tmpRewardChances)
+    end
+
+    CalculatedPlayerRwardList = {table.unpack(DefiniteRewardsList), table.unpack(ChanceRewardsList)}
+
+    for key, value in pairs(CalculatedPlayerRwardList) do
+        Player.Functions.AddItem(value, 1)
+        TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[value], "add")
+    end
+end
+
+function CompleteRestOfChancesData(RewardChances)
+    -- here we Complete the rest Chances to reach 100% in total in every try and then make EarnedLoot table
+    local sample
+    local temp = {}
+    for key, value in pairs(RewardChances) do
+        sample = Alias_table_wrapper({value[2], (100 - value[2])})
+        if sample == 1 then
+            table.insert(temp, value[1])
+        end
+    end
+    return temp
+end
 
 -- ============================
 --   SELLING
@@ -171,6 +212,23 @@ function garbageCollection()
         print("clearing Hunted Animals data")
         for i = 0, count do
             animalsEnity[i] = nil
+        end
+    end
+end
+
+function tprint(tbl, indent)
+    if not indent then
+        indent = 0
+    end
+    for k, v in pairs(tbl) do
+        formatting = string.rep("  ", indent) .. k .. ": "
+        if type(v) == "table" then
+            print(formatting)
+            tprint(v, indent + 1)
+        elseif type(v) == 'boolean' then
+            print(formatting .. tostring(v))
+        else
+            print(formatting .. v)
         end
     end
 end
