@@ -53,11 +53,11 @@ function initSellspotsQbTargets(sellspot)
 
         -- init qb-target for sellers
         exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = { {
-                event = "cad-hunting:client:sellREQ",
+            options = {{
+                event = "keep-hunting:client:sellREQ",
                 icon = "fas fa-sack-dollar",
                 label = "Sell All"
-                        } },
+            }},
             distance = 2.5
         })
     end
@@ -72,11 +72,11 @@ function initHuntingShopNpcQbTargets(HuntingShopNpc)
 
         -- init qb-target for sellers
         exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = { {
+            options = {{
                 event = "keep-hunting:marketshop",
                 icon = "fas fa-gun",
                 label = "Hunting Shop"
-                        } },
+            }},
             distance = 2.5
         })
 
@@ -92,7 +92,7 @@ end
 function initAnimalsTargting()
     for _, v in pairs(Config.Animals) do
         exports['qb-target']:AddTargetModel(v.model, {
-            options = { {
+            options = {{
                 icon = "fas fa-sack-dollar",
                 label = "slaughter",
                 canInteract = function(entity)
@@ -104,10 +104,10 @@ function initAnimalsTargting()
                     if IsPedAPlayer(entity) and IsEntityDead(entity) then
                         return false
                     end
-                    TriggerEvent('cad-hunting:client:slaughterAnimal', entity)
+                    TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
                     return true
                 end
-                        } },
+            }},
             distance = 1.5
         })
     end
@@ -192,11 +192,11 @@ function createDespawnThread(baitAnimal, was_llegal)
             local distance = #(coord - animalCoord)
 
             if distance <= 70 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE"--[[ string ]] , 0.2--[[ number ]] )
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.2 --[[ number ]] )
             elseif distance <= 25 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE"--[[ string ]] , 0.5--[[ number ]] )
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.5 --[[ number ]] )
             elseif distance <= 10 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE"--[[ string ]] , 0.8--[[ number ]] )
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.8 --[[ number ]] )
             elseif isDead then
                 StopGameplayCamShaking(true)
                 local callPoliceChance = callPoliceChance()
@@ -233,8 +233,8 @@ function makeEntityFaceEntity(entity1, entity2)
     local dy = p2.y - p1.y
 
     local heading = GetHeadingFromVector_2d(dx, dy)
-
     SetEntityHeading(entity1, heading)
+
 end
 
 RegisterNetEvent('keep-hunting:marketshop')
@@ -246,17 +246,16 @@ AddEventHandler('keep-hunting:marketshop', function(shop, itemData, amount)
     TriggerServerEvent("inventory:server:OpenInventory", "shop", "Itemshop_" .. Config.Shop["name"], ShopItems)
 end)
 
-function ToggleSlaughterAnimation(toggle , animalEnity)
+function ToggleSlaughterAnimation(toggle, animalEnity)
     local ped = PlayerPedId()
     Wait(250)
     if toggle then
         makeEntityFaceEntity(ped, animalEnity)
         loadAnimDict('amb@medic@standing@kneel@base')
         loadAnimDict('anim@gangops@facility@servers@bodysearch@')
-        TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false,
-            false, false)
-        TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0,
-            -1, 48, 0, false, false, false)
+        TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false, false)
+        TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0, -1, 48,
+            0, false, false, false)
     elseif not toggle then
         SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true)
         ClearPedTasks(ped)

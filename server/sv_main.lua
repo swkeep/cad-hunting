@@ -8,8 +8,8 @@ local Animals = Config.Animals
 -- ============================
 local animalsEnity = {} -- prevent players to slaughter twice
 
-RegisterServerEvent("cad-hunting:server:AddItem")
-AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
+RegisterServerEvent("keep-hunting:server:AddItem")
+AddEventHandler("keep-hunting:server:AddItem", function(data, entity)
     local _source = source
     local Player = CoreName.Functions.GetPlayer(_source)
 
@@ -82,8 +82,8 @@ end
 -- ============================
 --   SELLING
 -- ============================
-RegisterServerEvent('cad-hunting:server:sellmeat')
-AddEventHandler('cad-hunting:server:sellmeat', function()
+RegisterServerEvent('keep-hunting:server:sellmeat')
+AddEventHandler('keep-hunting:server:sellmeat', function()
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
     local price = 0
@@ -92,7 +92,6 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
         if Player.PlayerData.items ~= nil and next(Player.PlayerData.items) ~= nil then
             for k, v in pairs(Player.PlayerData.items) do
                 if Player.PlayerData.items[k] ~= nil then
-
                     for key, value in pairs(Config.Animals) do
                         for key, value in pairs(value["Loots"]) do
                             if value[1] == Player.PlayerData.items[k].name and Player.PlayerData.items[k].amount ~= 0 then
@@ -126,12 +125,8 @@ end)
 
 RegisterServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
 AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
-    local src = source
-    local Player = CoreName.Functions.GetPlayer(src)
-    if Player.Functions.RemoveItem("huntingbait", 1) then
-        return true
-    end
-    return false
+    local Player = CoreName.Functions.GetPlayer(source)
+    Player.Functions.RemoveItem("huntingbait", 1)
 end)
 
 RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn')
@@ -166,7 +161,7 @@ end
 
 CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)",
     {{"model", "Animal Model"}, {"was_llegal", "area of hunt true/false"}}, false, function(source, args)
-        TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1], args[2])
+        TriggerClientEvent('keep-hunting:client:spawnanim', source, args[1], args[2])
     end, 'admin')
 
 CoreName.Commands.Add("clearTask", "Clear Animations", {}, false, function(source)
