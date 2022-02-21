@@ -52,15 +52,7 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
     if (model and animal) then
         CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
             if hasitem then
-                SetEntityCoords(GetPlayerPed(-1), animalCoord.x - 0.5, animalCoord.y, animalCoord.z - 0.8, ture, false,
-                    true, false)
-                makeEntityFaceEntity(GetPlayerPed(-1), entity)
-                loadAnimDict('amb@medic@standing@kneel@base')
-                loadAnimDict('anim@gangops@facility@servers@bodysearch@')
-                TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false,
-                    false, false)
-                TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0,
-                    -1, 48, 0, false, false, false)
+                ToggleSlaughterAnimation(true , entity)
                 CoreName.Functions.Progressbar("harv_anim", "Slaughtering Animal", Config.SlaughteringSpeed, false,
                     false, {
                         disableMovement = true,
@@ -68,7 +60,7 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
                         disableMouse = false,
                         disableCombat = true
                     }, {}, {}, {}, function()
-                        ClearPedTasks(GetPlayerPed(-1))
+                        ToggleSlaughterAnimation(false , 0)
                         TriggerServerEvent('cad-hunting:server:AddItem', animal, entity)
                         Citizen.Wait(100)
                     end)
