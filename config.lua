@@ -33,15 +33,16 @@ Config.AnimalBlip = {
 Config.callPoliceChance = {25, 75} -- 25 + 75 = 100% ( 25% chance to call police )
 
 Config.llegalHuntingNotification = function(animalCoord)
-    TriggerEvent("police:client:policeAlert", animalCoord, "illlegal Hunting in area")
+    TriggerEvent("police:client:policeAlert", animalCoord, "illegal Hunting in area")
 end
 
 Config.Animals = {{
     model = "a_c_deer",
-    spwanRarity = {20, 100}, -- {llegal area spawn chance , illegal area spawn chance}
+    -- {legal area spawn chance , illegal area spawn chance}
+    spwanRarity = {20, 100},
     hash = -664053099,
     -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
-    -- note: 100% chance means every time players gonna get that item and scirpt will not use RNG system.
+    -- note: 100% chance means every time players gonna get that item and script will not use RNG system.
 
     -- IMPORTANT: if there are two or more rewards with the same name for example "meatpig"
     -- script will skip other prices and only uses the first seen value.
