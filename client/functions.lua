@@ -132,8 +132,10 @@ end
 -- animals Smart Flee
 
 function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
+    -- entity is not moveing detaction
     Citizen.CreateThread(function()
         local finished = false
+        TaskGoToCoordAnyMeans(entity, BaitCoord, 2.0, 0, 786603, 0xbf800000)
         while not IsPedDeadOrDying(entity) and not finished do
             local spawnedAnimalCoords = GetEntityCoords(entity)
             if #(BaitCoord - spawnedAnimalCoords) < 1 then
@@ -159,18 +161,21 @@ end
 
 -- 
 function getSpawnLocation(coord)
-    local radius = Config.baitSpawnDistance
+    local maxRadius = Config.maxSpawnDistance
+    local minRadius = Config.minSpawnDistance
+
     local safeCoord, outPosition
     local finished = false
     local index = 0
 
     while finished == false and index <= 1000 do
-        posX = coord.x + math.random(-radius, radius)
-        posY = coord.y + math.random(-radius, radius)
+        posX = coord.x + (math.random(minRadius, maxRadius) * math.cos(Config.spawnAngle))
+        posY = coord.y + (math.random(minRadius, maxRadius) * math.cos(Config.spawnAngle))
         Z = coord.z + 999.0
         heading = math.random(0, 359) + .0
         ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, true)
 
+        -- if game engine thinks coord is good to spawn exit loop
         safeCoord, outPosition = GetSafeCoordForPed(posX, posY, posZ, false, 16)
         finished = safeCoord
         index = index + 1
@@ -178,25 +183,26 @@ function getSpawnLocation(coord)
     return vector4(posX, posY, posZ, heading)
 end
 
-function createDespawnThread(baitAnimal, was_llegal)
+function createDespawnThread(baitAnimal, was_llegal, baitcoord)
     Citizen.CreateThread(function()
         local finished = false
         local range = Config.animalDespawnRange
+        local initalAnimalLocation = GetEntityCoords(baitAnimal)
+        local waitForAnimalToMoveIndex = 0
         while finished == false do
             local plyPed = PlayerPedId()
             local coord = GetEntityCoords(plyPed)
 
             local animalCoord = GetEntityCoords(baitAnimal)
             local isDead = IsEntityDead(baitAnimal)
-            local isEntityInWater = IsEntityInWater(baitAnimal)
             local distance = #(coord - animalCoord)
 
             if distance <= 70 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.2 --[[ number ]] )
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.2)
             elseif distance <= 25 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.5 --[[ number ]] )
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.5)
             elseif distance <= 10 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.8 --[[ number ]] )
+                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.8)
             elseif isDead then
                 StopGameplayCamShaking(true)
                 local callPoliceChance = callPoliceChance()
@@ -205,17 +211,27 @@ function createDespawnThread(baitAnimal, was_llegal)
                 end
                 finished = true
             end
-            if isEntityInWater or distance >= range then
-                if isEntityInWater then
-                    exports['qb-core']:GetCoreObject().Functions.Notify("Animal drowned, stay away from water!")
-                    SetModelAsNoLongerNeeded(baitAnimal)
-                    SetPedAsNoLongerNeeded(baitAnimal)
-                end
+            if distance >= range then
                 SetModelAsNoLongerNeeded(baitAnimal)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
                 finished = true
             end
-            Wait(750)
+
+            --- warp animal to near road if it's not moving 
+            if #(initalAnimalLocation - animalCoord) <= 15 then
+                waitForAnimalToMoveIndex = waitForAnimalToMoveIndex + 1
+            end
+            if waitForAnimalToMoveIndex == 10 then
+                print('warp needed!')
+                local tmpcord = getSpawnLocation(coord)
+                local r, outPosition, outHeading = GetClosestVehicleNodeWithHeading(tmpcord.x, tmpcord.y, tmpcord.z, 1,
+                    3.0, 0)
+                SetEntityCoordsNoOffset(baitAnimal, outPosition.x, outPosition.y, outPosition.z, 1)
+                TaskGoToCoordAnyMeans(baitAnimal, baitcoord, 2.0, 0, 786603, 0xbf800000)
+                initalAnimalLocation = GetEntityCoords(baitAnimal)
+                waitForAnimalToMoveIndex = 0
+            end
+            Wait(1000)
         end
     end)
 end

@@ -4,12 +4,12 @@ Config.DEBUG = true -- make sure it's false
 -- ============================
 --       Server Config
 -- ============================
-Config.sv_dataClearnigTimer = 5000 -- 1000 per sec
+Config.sv_dataClearnigTimer = 15000 -- 1000 per sec
 Config.sv_maxTableSize = 5000 -- saved entites in table
 
 -- End
 
-Config.BaitCooldown = 15000 -- 1000 per sec
+Config.BaitCooldown = 5000 -- 1000 per sec
 Config.SpawningTimer = 5000 -- script will wait until "SpawningTimer" time out then it's spwan animal  
 
 Config.AnimalsEatingSpeed = 7500 -- how much animals will wait in baits location
@@ -18,7 +18,9 @@ Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 Config.BaitPlacementSpeed = math.random(3000, 3000)
 Config.SlaughteringSpeed = math.random(1000, 5000)
 
-Config.baitSpawnDistance = 70 -- animal spwan radius from placed bait
+Config.maxSpawnDistance = 90 -- animal spwan radius from placed bait
+Config.minSpawnDistance = 50 -- animal spwan radius from placed bait
+Config.spawnAngle = math.random(0, 360) -- animal spwan radius from placed bait
 
 Config.animalDespawnRange = 500.0
 
@@ -36,41 +38,41 @@ end
 
 Config.Animals = {{
     model = "a_c_deer",
-    spwanRarity = {10, 90}, -- {llegal area spawn chance , illegal area spawn chance}
+    spwanRarity = {20, 100}, -- {llegal area spawn chance , illegal area spawn chance}
     hash = -664053099,
-    --{ {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
+    -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
     -- note: 100% chance means every time players gonna get that item and scirpt will not use RNG system.
 
     -- IMPORTANT: if there are two or more rewards with the same name for example "meatpig"
     -- script will skip other prices and only uses the first seen value.
 
     -- IMPORTANT: if you leave price with nil value player can't sell those items to Vendor. for example plastic in here
-    Loots = {{"meatdeer", 100, 150}, {"plastic", 50}} 
+    Loots = {{"meatdeer", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_pig",
-    spwanRarity = {0, 15},
+    spwanRarity = {20, 0},
     hash = -1323586730,
     -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
     Loots = {{"meatpig", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_boar",
-    spwanRarity = {10, 15},
+    spwanRarity = {30, 0},
     hash = -832573324,
-    
+
     Loots = {{"meatpig", 100}, {"plastic", 50}}
 }, {
     model = "a_c_mtlion",
-    spwanRarity = {90, 10},
+    spwanRarity = {0, 0},
     hash = 307287994,
     Loots = {{"meatlion", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_cow",
-    spwanRarity = {0, 0},
+    spwanRarity = {30, 0},
     hash = -50684386,
     Loots = {{"meatcow", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_coyote",
-    spwanRarity = {10, 18},
+    spwanRarity = {0, 0},
     hash = 1682622302,
     Loots = {{"meatcoyote", 100, 150}, {"plastic", 50}}
 }, {
