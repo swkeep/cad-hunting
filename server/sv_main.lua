@@ -142,8 +142,9 @@ end)
 
 function choiceAnimal(Rarities, was_llegal)
     local temp = {}
+    local res
     for key, value in pairs(Rarities) do
-        if was_llegal then
+        if not was_llegal then
             table.insert(temp, value.spwanRarity[2])
         else
             table.insert(temp, value.spwanRarity[1])
@@ -151,6 +152,7 @@ function choiceAnimal(Rarities, was_llegal)
     end
     if temp ~= nil then
         local sample = Alias_table_wrapper(temp)
+        print(sample)
         return Rarities[sample]
     end
 end

@@ -104,6 +104,41 @@ end
 -- ============================
 --      Bait
 -- ============================
+
+local hasMusket = false
+
+local function blockShooting()
+    Citizen.CreateThread(function()
+        while hasMusket do
+            Citizen.Wait(1)
+            local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(PlayerId(-1))
+            if aiming then
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) then
+                    DisableControlAction(1, 140, true)
+                    DisableControlAction(1, 141, true)
+                    DisableControlAction(1, 142, true)
+                    DisableControlAction(0, 21, true)
+                    DisableControlAction(1, 37, true)
+                    DisablePlayerFiring(PlayerId(), true)
+                end
+            end
+        end
+    end)
+end
+
+Citizen.CreateThread(function()
+    local MusketHash = GetHashKey('weapon_musket')
+    while true do
+        if GetSelectedPedWeapon(PlayerPedId()) == MusketHash then
+            hasMusket = true
+            blockShooting()
+        else
+            hasMusket = false
+        end
+        Citizen.Wait(500)
+    end
+end)
+
 RegisterNetEvent('keep-hunting:client:useBait')
 AddEventHandler('keep-hunting:client:useBait', function()
     local plyPed = PlayerPedId()
@@ -189,9 +224,8 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, 
 
     if DoesEntityExist(baitAnimal) then
         TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-        TaskGoToCoordAnyMeans(baitAnimal, coord, 2.0, 0, 786603, 0)
         createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal)
-        createDespawnThread(baitAnimal, was_llegal)
+        createDespawnThread(baitAnimal, was_llegal, coord)
         print("debug: spwan success")
     else
         print("debug: spwan failed")
