@@ -62,7 +62,7 @@ Config.minSpawnDistance = 50
 Config.spawnAngle = math.random(0, 360)
 ```
 
-- This is how spawnAngle works:__
+- This is how spawnAngle works: <br />
   ![radius](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/radius.jpg)
 
 ```lua
@@ -85,5 +85,5 @@ Config.Animals = {{
 }
 ```
 
-- This is how chances of spawning work:__
+- This is how chances of spawning work: <br />
   ![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPG)
