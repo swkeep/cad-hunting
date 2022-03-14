@@ -57,15 +57,6 @@ end)
 # Config file
 
 ```lua
-Config.maxSpawnDistance = 90
-Config.minSpawnDistance = 50
-Config.spawnAngle = math.random(0, 360)
-```
-
-- This is how spawnAngle works:
-  ![radius](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/radius.jpg)
-
-```lua
 Config.Animals = {{
     model = "a_c_deer",
     -- {legal area spawn chance , illegal area spawn chance}
@@ -86,4 +77,5 @@ Config.Animals = {{
 ```
 
 - This is how chances of spawning work:
-  ![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPG)
+
+![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)

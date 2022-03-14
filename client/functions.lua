@@ -170,7 +170,7 @@ function getSpawnLocation(coord)
 
     while finished == false and index <= 1000 do
         posX = coord.x + (math.random(minRadius, maxRadius) * math.cos(Config.spawnAngle))
-        posY = coord.y + (math.random(minRadius, maxRadius) * math.cos(Config.spawnAngle))
+        posY = coord.y + (math.random(minRadius, maxRadius) * math.sin(Config.spawnAngle))
         Z = coord.z + 999.0
         heading = math.random(0, 359) + .0
         ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, true)
