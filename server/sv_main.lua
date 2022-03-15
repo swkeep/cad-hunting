@@ -8,8 +8,8 @@ local Animals = Config.Animals
 -- ============================
 local animalsEnity = {} -- prevent players to slaughter twice
 
-RegisterServerEvent("cad-hunting:server:AddItem")
-AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
+RegisterServerEvent("keep-hunting:server:AddItem")
+AddEventHandler("keep-hunting:server:AddItem", function(data, entity)
     local _source = source
     local Player = CoreName.Functions.GetPlayer(_source)
 
@@ -17,32 +17,73 @@ AddEventHandler("cad-hunting:server:AddItem", function(data, entity)
         if v.model == data.model then
             -- check if another player already slaughtered or not
             if animalsEnity ~= nil then
-                local isAleadySlaughtered = isAleadySlaughtered(entity)
-
-                if isAleadySlaughtered == false then
+                if isAleadySlaughtered(entity) == false then
                     setHash(entity) -- prevent player to slaughter twice
-                    Player.Functions.AddItem(v.invItemName, 1)
-                    TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
-                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1 ,entity)
-                else 
+                    choiceRewardsForPlayer(v.Loots, _source, Player)
+                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
+                else
                     TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
                     TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
                 end
             else
                 -- init animalsEnity table
                 setHash(entity) -- prevent player to slaughter twice
-                Player.Functions.AddItem(v.invItemName, 1)
-                TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[v.invItemName], "add")
+                choiceRewardsForPlayer(v.Loots, _source, Player)
             end
         end
     end
 end)
 
+function choiceRewardsForPlayer(LootTable, _source, Player)
+    local tmpRewardChances = {}
+    local DefiniteRewardsList = {}
+    local ChanceRewardsList = {}
+    local CalculatedPlayerRwardList = {}
+
+    for key, value in pairs(LootTable) do
+        -- value[1] contains item names
+        -- value[2] contains lootTable Chances
+
+        -- Separate Definite and Chance Rewarding
+        if value[2] == 100 then
+            -- Definite
+            table.insert(DefiniteRewardsList, value[1])
+        else
+            -- Chance
+            table.insert(tmpRewardChances, {value[1], value[2]})
+        end
+    end
+
+    if tmpRewardChances ~= nil then
+        ChanceRewardsList = CompleteRestOfChancesData(tmpRewardChances)
+    end
+
+    CalculatedPlayerRwardList = {table.unpack(DefiniteRewardsList), table.unpack(ChanceRewardsList)}
+
+    for key, value in pairs(CalculatedPlayerRwardList) do
+        Player.Functions.AddItem(value, 1)
+        TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[value], "add")
+    end
+end
+
+function CompleteRestOfChancesData(RewardChances)
+    -- here we Complete the rest Chances to reach 100% in total in every try and then make EarnedLoot table
+    local sample
+    local temp = {}
+    for key, value in pairs(RewardChances) do
+        sample = Alias_table_wrapper({value[2], (100 - value[2])})
+        if sample == 1 then
+            table.insert(temp, value[1])
+        end
+    end
+    return temp
+end
+
 -- ============================
 --   SELLING
 -- ============================
-RegisterServerEvent('cad-hunting:server:sellmeat')
-AddEventHandler('cad-hunting:server:sellmeat', function()
+RegisterServerEvent('keep-hunting:server:sellmeat')
+AddEventHandler('keep-hunting:server:sellmeat', function()
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
     local price = 0
@@ -51,13 +92,18 @@ AddEventHandler('cad-hunting:server:sellmeat', function()
         if Player.PlayerData.items ~= nil and next(Player.PlayerData.items) ~= nil then
             for k, v in pairs(Player.PlayerData.items) do
                 if Player.PlayerData.items[k] ~= nil then
-                    for _, v in pairs(Config.Animals) do
-                        if v.invItemName == Player.PlayerData.items[k].name then
-                            price = price + (v.price * Player.PlayerData.items[k].amount)
-                            Player.Functions.RemoveItem(Player.PlayerData.items[k].name,
-                                Player.PlayerData.items[k].amount, k)
+                    for key, value in pairs(Config.Animals) do
+                        for key, value in pairs(value["Loots"]) do
+                            if value[1] == Player.PlayerData.items[k].name and Player.PlayerData.items[k].amount ~= 0 then
+                                if value[3] ~= nil then
+                                    price = price + (value[3] * Player.PlayerData.items[k].amount)
+                                    Player.Functions.RemoveItem(Player.PlayerData.items[k].name,
+                                        Player.PlayerData.items[k].amount, k)
+                                end
+                            end
                         end
                     end
+
                 end
             end
             if price == 0 then
@@ -79,12 +125,8 @@ end)
 
 RegisterServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
 AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
-    local src = source
-    local Player = CoreName.Functions.GetPlayer(src)
-    if Player.Functions.RemoveItem("huntingbait", 1) then
-        return true
-    end
-    return false
+    local Player = CoreName.Functions.GetPlayer(source)
+    Player.Functions.RemoveItem("huntingbait", 1)
 end)
 
 RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn')
@@ -100,8 +142,9 @@ end)
 
 function choiceAnimal(Rarities, was_llegal)
     local temp = {}
+    local res
     for key, value in pairs(Rarities) do
-        if was_llegal then
+        if not was_llegal then
             table.insert(temp, value.spwanRarity[2])
         else
             table.insert(temp, value.spwanRarity[1])
@@ -119,7 +162,7 @@ end
 
 CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)",
     {{"model", "Animal Model"}, {"was_llegal", "area of hunt true/false"}}, false, function(source, args)
-        TriggerClientEvent('cad-hunting:client:spawnanim', source, args[1], args[2])
+        TriggerClientEvent('keep-hunting:client:spawnanim', source, args[1], args[2])
     end, 'admin')
 
 CoreName.Commands.Add("clearTask", "Clear Animations", {}, false, function(source)
@@ -171,6 +214,23 @@ function garbageCollection()
         print("clearing Hunted Animals data")
         for i = 0, count do
             animalsEnity[i] = nil
+        end
+    end
+end
+
+function tprint(tbl, indent)
+    if not indent then
+        indent = 0
+    end
+    for k, v in pairs(tbl) do
+        formatting = string.rep("  ", indent) .. k .. ": "
+        if type(v) == "table" then
+            print(formatting)
+            tprint(v, indent + 1)
+        elseif type(v) == 'boolean' then
+            print(formatting .. tostring(v))
+        else
+            print(formatting .. v)
         end
     end
 end

@@ -44,7 +44,7 @@ Citizen.CreateThread(function()
     -- SetRelationshipBetweenGroups(5, GetHashKey("a_c_mtlion"), GetHashKey(GetPlayerPed(-1)))
 end)
 
-AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
+AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
     local model = GetEntityModel(entity)
     local animalCoord = GetEntityCoords(entity)
     local animal = getAnimalMatch(model)
@@ -52,15 +52,7 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
     if (model and animal) then
         CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
             if hasitem then
-                SetEntityCoords(GetPlayerPed(-1), animalCoord.x - 0.5, animalCoord.y, animalCoord.z - 0.8, ture, false,
-                    true, false)
-                makeEntityFaceEntity(GetPlayerPed(-1), entity)
-                loadAnimDict('amb@medic@standing@kneel@base')
-                loadAnimDict('anim@gangops@facility@servers@bodysearch@')
-                TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false,
-                    false, false)
-                TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0,
-                    -1, 48, 0, false, false, false)
+                ToggleSlaughterAnimation(true, entity)
                 CoreName.Functions.Progressbar("harv_anim", "Slaughtering Animal", Config.SlaughteringSpeed, false,
                     false, {
                         disableMovement = true,
@@ -68,8 +60,8 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
                         disableMouse = false,
                         disableCombat = true
                     }, {}, {}, {}, function()
-                        ClearPedTasks(GetPlayerPed(-1))
-                        TriggerServerEvent('cad-hunting:server:AddItem', animal, entity)
+                        ToggleSlaughterAnimation(false, 0)
+                        TriggerServerEvent('keep-hunting:server:AddItem', animal, entity)
                         Citizen.Wait(100)
                     end)
             else
@@ -79,8 +71,8 @@ AddEventHandler('cad-hunting:client:slaughterAnimal', function(entity)
     end
 end)
 
-AddEventHandler('cad-hunting:client:sellREQ', function()
-    TriggerServerEvent('cad-hunting:server:sellmeat')
+AddEventHandler('keep-hunting:client:sellREQ', function()
+    TriggerServerEvent('keep-hunting:server:sellmeat')
 end)
 
 RegisterNetEvent('keep-hunting:client:ForceRemoveAnimalEntity')
@@ -112,6 +104,41 @@ end
 -- ============================
 --      Bait
 -- ============================
+
+local hasMusket = false
+
+local function blockShooting()
+    Citizen.CreateThread(function()
+        while hasMusket do
+            Citizen.Wait(1)
+            local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(PlayerId(-1))
+            if aiming then
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) then
+                    DisableControlAction(1, 140, true)
+                    DisableControlAction(1, 141, true)
+                    DisableControlAction(1, 142, true)
+                    DisableControlAction(0, 21, true)
+                    DisableControlAction(1, 37, true)
+                    DisablePlayerFiring(PlayerId(), true)
+                end
+            end
+        end
+    end)
+end
+
+Citizen.CreateThread(function()
+    local MusketHash = GetHashKey('weapon_musket')
+    while true do
+        if GetSelectedPedWeapon(PlayerPedId()) == MusketHash then
+            hasMusket = true
+            blockShooting()
+        else
+            hasMusket = false
+        end
+        Citizen.Wait(500)
+    end
+end)
+
 RegisterNetEvent('keep-hunting:client:useBait')
 AddEventHandler('keep-hunting:client:useBait', function()
     local plyPed = PlayerPedId()
@@ -195,21 +222,21 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, 
         EndTextCommandSetBlipName(blip)
     end
 
-    if DoesEntityExist(baitAnimal) and TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory') then
-        TaskGoToCoordAnyMeans(baitAnimal, coord, 2.0, 0, 786603, 0)
+    if DoesEntityExist(baitAnimal) then
+        TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
         createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal)
-        createDespawnThread(baitAnimal, was_llegal)
+        createDespawnThread(baitAnimal, was_llegal, coord)
         print("debug: spwan success")
     else
-        print("debug: spwan failed != removeBaitFromPlayerInventory")
+        print("debug: spwan failed")
     end
 end)
 
 -- ============================
 --      Spawning Ped Command
 -- ============================
-RegisterNetEvent('cad-hunting:client:spawnanim')
-AddEventHandler('cad-hunting:client:spawnanim', function(model, was_llegal)
+RegisterNetEvent('keep-hunting:client:spawnanim')
+AddEventHandler('keep-hunting:client:spawnanim', function(model, was_llegal)
     model = (tonumber(model) ~= nil and tonumber(model) or GetHashKey(model))
     local playerPed = PlayerPedId()
     local coords = GetEntityCoords(playerPed)
@@ -222,7 +249,7 @@ AddEventHandler('cad-hunting:client:spawnanim', function(model, was_llegal)
             Citizen.Wait(1)
         end
         baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
-        --ExplodePedHead(baitAnimal, GetHashKey("weapon_musket"))
+        -- ExplodePedHead(baitAnimal, GetHashKey("weapon_musket"))
         createDespawnThread(baitAnimal, was_llegal)
     end)
 end)

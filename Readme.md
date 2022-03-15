@@ -30,7 +30,7 @@
 - hunting shop config
 - Modify qb-shops/server/main.lua as showed in code
 
-```lua 
+```lua
 RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
     Config.Locations[shop]["products"][itemData.slot].amount =
         Config.Locations[shop]["products"][itemData.slot].amount - amount
@@ -53,3 +53,29 @@ RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amo
     end
 end)
 ```
+
+# Config file
+
+```lua
+Config.Animals = {{
+    model = "a_c_deer",
+    -- {legal area spawn chance , illegal area spawn chance}
+    spwanRarity = {20, 100},
+    hash = -664053099,
+    -- Loots: determines what players gonna get after they slaughtered animals
+    -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
+    -- note: 100% chance means every time players gonna get that item
+    -- IMPORTANT: if you leave price with nil value players can't sell those items to Vendor. for example plastic in here
+    -- note: 100% meatdeer + 50% plastic The following means that players have a chance to receive (meatdeer + plastic) at once.
+    Loots = {{"meatdeer", 100, 150}, {"plastic", 50}}
+},
+.
+.
+.
+
+}
+```
+
+- This is how chances of spawning work:
+
+![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)
