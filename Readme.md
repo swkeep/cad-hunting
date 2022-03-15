@@ -78,4 +78,4 @@ Config.Animals = {{
 
 - This is how chances of spawning work:
 
-![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)
+![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/main/.github/img/chance.JPG)
