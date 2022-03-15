@@ -152,7 +152,6 @@ function choiceAnimal(Rarities, was_llegal)
     end
     if temp ~= nil then
         local sample = Alias_table_wrapper(temp)
-        print(sample)
         return Rarities[sample]
     end
 end

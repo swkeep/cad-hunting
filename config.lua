@@ -18,9 +18,9 @@ Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 Config.BaitPlacementSpeed = math.random(3000, 3000)
 Config.SlaughteringSpeed = math.random(1000, 5000)
 
-Config.maxSpawnDistance = 90 -- animal spwan radius from placed bait
-Config.minSpawnDistance = 50 -- animal spwan radius from placed bait
-Config.spawnAngle = math.random(0, 360) -- animal spwan radius from placed bait
+Config.maxSpawnDistance = 100 -- animal spwan radius from placed bait
+Config.minSpawnDistance = 60 -- animal spwan radius from placed bait
+Config.spawnAngle = {0, 360} -- animal spwan radius from placed bait
 
 Config.animalDespawnRange = 500.0
 

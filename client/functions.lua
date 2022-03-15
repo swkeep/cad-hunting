@@ -131,14 +131,20 @@ end
 
 -- animals Smart Flee
 
-function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
+function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity)
     -- entity is not moveing detaction
     Citizen.CreateThread(function()
+        local playerPed = PlayerPedId()
         local finished = false
-        TaskGoToCoordAnyMeans(entity, BaitCoord, 2.0, 0, 786603, 0xbf800000)
+        local FleeView = Config.AnimalsFleeView
+
+        TaskGoToCoordAnyMeans(entity, baitCoord, 2.0, 0, 786603, 0xbf800000)
         while not IsPedDeadOrDying(entity) and not finished do
-            local spawnedAnimalCoords = GetEntityCoords(entity)
-            if #(BaitCoord - spawnedAnimalCoords) < 1 then
+            local playerCoord = GetEntityCoords(playerPed)
+            local entityCoord = GetEntityCoords(entity)
+
+            if #(baitCoord - entityCoord) < 1 then
+                -- when animal reached bait
                 ClearPedTasks(entity)
                 Citizen.Wait(1500)
                 TaskStartScenarioInPlace(entity, "WORLD_DEER_GRAZING", 0, true)
@@ -146,20 +152,43 @@ function createThreadAnimalTraveledDistanceToBaitTracker(BaitCoord, entity)
                     finished = true
                 end)
             end
-            if #(spawnedAnimalCoords - GetEntityCoords(PlayerPedId())) < Config.AnimalsFleeView then
+            if #(entityCoord - playerCoord) < FleeView then
+                -- animal flee view 
                 ClearPedTasks(entity)
-                TaskSmartFleePed(entity, PlayerPedId(), 600.0, -1)
+                TaskSmartFleePed(entity, playerPed, 600.0, -1)
                 finished = true
             end
+
+            -- track if animal can move toward bait or not
+            animalAntiStuck(entity, baitCoord)
+
             Citizen.Wait(1000)
         end
         if not IsPedDeadOrDying(entity) then
-            TaskSmartFleePed(entity, PlayerPedId(), 600.0, -1)
+            TaskSmartFleePed(entity, playerPed, 600.0, -1)
         end
     end)
 end
 
--- 
+--- check if animal can move toward bait
+---@param entity 'entity'
+---@param baitCoord 'vector3'
+function animalAntiStuck(entity, baitCoord)
+    local plyPed = PlayerPedId()
+    local coord = GetEntityCoords(plyPed)
+    local animalCoord = GetEntityCoords(entity)
+    local distance = #(baitCoord - animalCoord)
+
+    if IsPedStill(entity) and distance >= 25.0 then
+        print('warp')
+        local tmpcord = getSpawnLocation(coord)
+        SetEntityCoordsNoOffset(entity, tmpcord.x, tmpcord.y, tmpcord.z, 1)
+        TaskGoToCoordAnyMeans(entity, baitCoord, 2.0, 0, 786603, 0xbf800000)
+    end
+end
+
+--- generate safe spawn location
+---@param coord 'vector3'
 function getSpawnLocation(coord)
     local maxRadius = Config.maxSpawnDistance
     local minRadius = Config.minSpawnDistance
@@ -169,8 +198,14 @@ function getSpawnLocation(coord)
     local index = 0
 
     while finished == false and index <= 1000 do
-        posX = coord.x + (math.random(minRadius, maxRadius) * math.cos(Config.spawnAngle))
-        posY = coord.y + (math.random(minRadius, maxRadius) * math.sin(Config.spawnAngle))
+        local angle = Config.spawnAngle
+        local random
+        for i = 1, 10, 1 do
+            random = math.random(angle[1], angle[2])
+        end
+        posX = coord.x + (math.random(minRadius, maxRadius) * math.cos(random))
+        posY = coord.y + (math.random(minRadius, maxRadius) * math.sin(random))
+
         Z = coord.z + 999.0
         heading = math.random(0, 359) + .0
         ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, true)
@@ -187,8 +222,7 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
     Citizen.CreateThread(function()
         local finished = false
         local range = Config.animalDespawnRange
-        local initalAnimalLocation = GetEntityCoords(baitAnimal)
-        local waitForAnimalToMoveIndex = 0
+
         while finished == false do
             local plyPed = PlayerPedId()
             local coord = GetEntityCoords(plyPed)
@@ -198,11 +232,11 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
             local distance = #(coord - animalCoord)
 
             if distance <= 70 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.2)
+                ShakeGameplayCam("VIBRATE_SHAKE", 0.2)
             elseif distance <= 25 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.5)
+                ShakeGameplayCam("VIBRATE_SHAKE", 0.5)
             elseif distance <= 10 and not isDead then
-                ShakeGameplayCam("VIBRATE_SHAKE" --[[ string ]] , 0.8)
+                ShakeGameplayCam("VIBRATE_SHAKE", 0.8)
             elseif isDead then
                 StopGameplayCamShaking(true)
                 local callPoliceChance = callPoliceChance()
@@ -211,26 +245,13 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
                 end
                 finished = true
             end
+            -- when the animal has taken the set distance from the player
             if distance >= range then
                 SetModelAsNoLongerNeeded(baitAnimal)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
                 finished = true
             end
 
-            --- warp animal to near road if it's not moving 
-            if #(initalAnimalLocation - animalCoord) <= 15 then
-                waitForAnimalToMoveIndex = waitForAnimalToMoveIndex + 1
-            end
-            if waitForAnimalToMoveIndex == 10 then
-                print('warp needed!')
-                local tmpcord = getSpawnLocation(coord)
-                local r, outPosition, outHeading = GetClosestVehicleNodeWithHeading(tmpcord.x, tmpcord.y, tmpcord.z, 1,
-                    3.0, 0)
-                SetEntityCoordsNoOffset(baitAnimal, outPosition.x, outPosition.y, outPosition.z, 1)
-                TaskGoToCoordAnyMeans(baitAnimal, baitcoord, 2.0, 0, 786603, 0xbf800000)
-                initalAnimalLocation = GetEntityCoords(baitAnimal)
-                waitForAnimalToMoveIndex = 0
-            end
             Wait(1000)
         end
     end)
@@ -250,7 +271,6 @@ function makeEntityFaceEntity(entity1, entity2)
 
     local heading = GetHeadingFromVector_2d(dx, dy)
     SetEntityHeading(entity1, heading)
-
 end
 
 RegisterNetEvent('keep-hunting:marketshop')
