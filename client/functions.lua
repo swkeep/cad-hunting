@@ -36,7 +36,7 @@ function createCustomBlips(data)
         else
             SetBlipSprite(Blip, 442)
             BeginTextCommandSetBlipName("STRING")
-            AddTextComponentString("Sell Meat")
+            AddTextComponentString(v.name)
             EndTextCommandSetBlipName(Blip)
         end
         SetBlipDisplay(Blip, 4)
@@ -82,12 +82,18 @@ function initHuntingShopNpcQbTargets(HuntingShopNpc)
             distance = 2.5
         })
 
-        StoreBlip = AddBlipForCoord(v.BlipsCoords)
-        SetBlipColour(StoreBlip, 0)
-        SetBlipSprite(StoreBlip, 626)
-        SetBlipScale(StoreBlip, 1.0)
-        SetBlipColour(StoreBlip, 1)
-        SetBlipAsShortRange(StoreBlip, true)
+        if v.showBlip == true then
+            StoreBlip = AddBlipForCoord(v.BlipsCoords)
+            SetBlipColour(StoreBlip, 0)
+            SetBlipSprite(StoreBlip, 626)
+            SetBlipScale(StoreBlip, 1.0)
+            SetBlipColour(StoreBlip, 1)
+            SetBlipAsShortRange(StoreBlip, true)
+            BeginTextCommandSetBlipName("STRING")
+            AddTextComponentString(v.name)
+            EndTextCommandSetBlipName(StoreBlip)
+        end
+
     end
 end
 

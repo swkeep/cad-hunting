@@ -149,6 +149,8 @@ Config.Shop = {
 
 Config.HuntingShopNpc = {{
     BlipsCoords = vector3(-679.82, 5838.92, 17.33),
+    name = 'hunting shop',
+    showBlip = true,
     SellerNpc = {
         model = 'ig_hunter', -- This is the ped model that is going to be spawning at the given coords
         coords = vector4(-679.82, 5838.92, 17.33, 217.45), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
@@ -166,6 +168,8 @@ Config.HuntingShopNpc = {{
 
 Config.SellSpots = {{
     BlipsCoords = vector3(570.34, 2796.46, 42.01),
+    name = 'sell hunting stuff!',
+    showBlip = true,
     SellerNpc = {
         model = 'csb_chef', -- This is the ped model that is going to be spawning at the given coords
         coords = vector4(570.34, 2796.46, 42.01, 294.27), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
