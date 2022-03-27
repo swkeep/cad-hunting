@@ -1,12 +1,18 @@
 Config = Config or {}
 
-Config.DEBUG = true -- make sure it's false
+Config.DEBUG = false -- make sure it's false
 -- ============================
 --       Server Config
 -- ============================
 Config.sv_dataClearnigTimer = 15000 -- 1000 per sec
 Config.sv_maxTableSize = 5000 -- saved entites in table
 
+-- End
+
+-- protection system againts players  
+-- if hunters have this weapons they can't shoot players with it!
+Config.ShootingProtection = false
+Config.ProtectedWeapons = {'weapon_musket'}
 -- End
 
 Config.BaitCooldown = 5000 -- 1000 per sec

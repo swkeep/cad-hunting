@@ -113,7 +113,7 @@ local function blockShooting()
             Citizen.Wait(1)
             local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(PlayerId(-1))
             if aiming then
-                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) then
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and IsPedAPlayer(targetPed) then
                     DisableControlAction(1, 140, true)
                     DisableControlAction(1, 141, true)
                     DisableControlAction(1, 142, true)
@@ -126,18 +126,25 @@ local function blockShooting()
     end)
 end
 
-Citizen.CreateThread(function()
-    local MusketHash = GetHashKey('weapon_musket')
-    while true do
-        if GetSelectedPedWeapon(PlayerPedId()) == MusketHash then
-            hasMusket = true
-            blockShooting()
-        else
-            hasMusket = false
-        end
-        Citizen.Wait(500)
+if Config.ShootingProtection then
+    local hashTable = {}
+    for key, weapon in pairs(Config.ProtectedWeapons) do
+        table.insert(hashTable, GetHashKey(weapon))
     end
-end)
+    Citizen.CreateThread(function()
+        while true do
+            Citizen.Wait(250)
+            for key, weaponHash in pairs(hashTable) do
+                if GetSelectedPedWeapon(PlayerPedId()) == weaponHash and hasMusket == false then
+                    hasMusket = true
+                    blockShooting()
+                else
+                    hasMusket = false
+                end
+            end
+        end
+    end)
+end
 
 RegisterNetEvent('keep-hunting:client:useBait')
 AddEventHandler('keep-hunting:client:useBait', function()
