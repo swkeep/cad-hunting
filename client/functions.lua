@@ -4,33 +4,35 @@ local CoreName = exports['qb-core']:GetCoreObject()
 function createCustomBlips(data)
     for _, v in pairs(data) do
         -- create Blips
-        if v.BlipsCoords ~= nill then
+        if v.BlipsCoords ~= nil and v.showBlip == true then
             Blip = AddBlipForCoord(v.BlipsCoords.x, v.BlipsCoords.y, v.BlipsCoords.z)
-        else
+        elseif v.BlipsCoords == nil and v.showBlip == true then
             Blip = AddBlipForCoord(v.coord.x, v.coord.y, v.coord.z)
         end
         SetBlipAsShortRange(Blip, true)
         if v.radius ~= nil then
-            SetBlipSprite(Blip, 141)
+            if v.showBlip == true then
+                SetBlipSprite(Blip, 141)
 
-            BeginTextCommandSetBlipName("STRING")
-            AddTextComponentString(v.name)
-            EndTextCommandSetBlipName(Blip)
-            local RadiusBlip = AddBlipForRadius(v.coord.x, v.coord.y, v.coord.z, v.radius)
+                BeginTextCommandSetBlipName("STRING")
+                AddTextComponentString(v.name)
+                EndTextCommandSetBlipName(Blip)
+                local RadiusBlip = AddBlipForRadius(v.coord.x, v.coord.y, v.coord.z, v.radius)
 
-            AddCircleZone(v.name, v.llegal, v.coord, v.radius, {
-                name = "circle_zone",
-                debugPoly = DEBUG
-            })
-            SetBlipRotation(RadiusBlip, 0)
+                AddCircleZone(v.name, v.llegal, v.coord, v.radius, {
+                    name = "circle_zone",
+                    debugPoly = DEBUG
+                })
+                SetBlipRotation(RadiusBlip, 0)
 
-            if v.llegal == false then
-                SetBlipColour(RadiusBlip, 1)
-            else
-                SetBlipColour(RadiusBlip, 4)
+                if v.llegal == false then
+                    SetBlipColour(RadiusBlip, 1)
+                else
+                    SetBlipColour(RadiusBlip, 4)
+                end
+
+                SetBlipAlpha(RadiusBlip, 64)
             end
-
-            SetBlipAlpha(RadiusBlip, 64)
         else
             SetBlipSprite(Blip, 442)
             BeginTextCommandSetBlipName("STRING")
@@ -85,6 +87,7 @@ function initHuntingShopNpcQbTargets(HuntingShopNpc)
         SetBlipSprite(StoreBlip, 626)
         SetBlipScale(StoreBlip, 1.0)
         SetBlipColour(StoreBlip, 1)
+        SetBlipAsShortRange(StoreBlip, true)
     end
 end
 
