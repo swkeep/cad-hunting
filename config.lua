@@ -1,12 +1,18 @@
 Config = Config or {}
 
-Config.DEBUG = true -- make sure it's false
+Config.DEBUG = false -- make sure it's false
 -- ============================
 --       Server Config
 -- ============================
 Config.sv_dataClearnigTimer = 15000 -- 1000 per sec
 Config.sv_maxTableSize = 5000 -- saved entites in table
 
+-- End
+
+-- protection system againts players  
+-- if hunters have this weapons they can't shoot players with it!
+Config.ShootingProtection = false
+Config.ProtectedWeapons = {'weapon_musket'}
 -- End
 
 Config.BaitCooldown = 5000 -- 1000 per sec
@@ -97,12 +103,14 @@ Config.HuntingArea = {{
     name = "llegal hunting Area",
     coord = vector3(-840.6, 4183.3, 215.29),
     radius = 1000.0,
-    llegal = true
+    llegal = true,
+    showBlip = true
 }, {
     name = "illlegal hunting Area",
     coord = vector3(870.01, 5158.01, 452.54),
     radius = 500.0,
-    llegal = false
+    llegal = false,
+    showBlip = true
 }}
 
 Config.HuntingShopItems = {
@@ -147,6 +155,8 @@ Config.Shop = {
 
 Config.HuntingShopNpc = {{
     BlipsCoords = vector3(-679.82, 5838.92, 17.33),
+    name = 'hunting shop',
+    showBlip = true,
     SellerNpc = {
         model = 'ig_hunter', -- This is the ped model that is going to be spawning at the given coords
         coords = vector4(-679.82, 5838.92, 17.33, 217.45), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
@@ -164,6 +174,8 @@ Config.HuntingShopNpc = {{
 
 Config.SellSpots = {{
     BlipsCoords = vector3(570.34, 2796.46, 42.01),
+    name = 'sell hunting stuff!',
+    showBlip = true,
     SellerNpc = {
         model = 'csb_chef', -- This is the ped model that is going to be spawning at the given coords
         coords = vector4(570.34, 2796.46, 42.01, 294.27), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
