@@ -107,20 +107,30 @@ end
 
 local hasMusket = false
 
+disablePlayerFiring = function()
+    DisableControlAction(0, 24) -- INPUT_ATTACK
+    DisableControlAction(0, 69) -- INPUT_VEH_ATTACK
+    DisableControlAction(0, 70) -- INPUT_VEH_ATTACK2
+    DisableControlAction(0, 92) -- INPUT_VEH_PASSENGER_ATTACK
+    DisableControlAction(0, 114) -- INPUT_VEH_FLY_ATTACK
+    DisableControlAction(0, 257) -- INPUT_ATTACK2
+    DisableControlAction(0, 331) -- INPUT_VEH_FLY_ATTACK2
+end
+
 local function blockShooting()
     Citizen.CreateThread(function()
         while hasMusket do
             Citizen.Wait(1)
             local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(PlayerId(-1))
+            local PedType = GetPedType(targetPed)
+
             if aiming then
-                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and IsPedAPlayer(targetPed) then
-                    DisableControlAction(1, 140, true)
-                    DisableControlAction(1, 141, true)
-                    DisableControlAction(1, 142, true)
-                    DisableControlAction(0, 21, true)
-                    DisableControlAction(1, 37, true)
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and (PedType == 1 or PedType == 2) then
                     DisablePlayerFiring(PlayerId(), true)
+                    disablePlayerFiring()
                 end
+            else
+                hasMusket = false
             end
         end
     end)
@@ -133,13 +143,15 @@ if Config.ShootingProtection then
     end
     Citizen.CreateThread(function()
         while true do
-            Citizen.Wait(250)
+            Citizen.Wait(50)
             for key, weaponHash in pairs(hashTable) do
-                if GetSelectedPedWeapon(PlayerPedId()) == weaponHash and hasMusket == false then
-                    hasMusket = true
-                    blockShooting()
-                else
-                    hasMusket = false
+                if hasMusket == false then
+                    if GetSelectedPedWeapon(PlayerPedId()) == weaponHash then
+                        hasMusket = true
+                        blockShooting()
+                    else
+                        hasMusket = false
+                    end
                 end
             end
         end

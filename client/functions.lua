@@ -129,6 +129,7 @@ function getAnimalMatch(hash)
             return v
         end
     end
+    return false
 end
 
 function loadAnimDict(dict)
