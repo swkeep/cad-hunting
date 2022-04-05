@@ -4,7 +4,7 @@ Config.DEBUG = false -- make sure it's false
 -- ============================
 --       Server Config
 -- ============================
-Config.sv_dataClearnigTimer = 15000 -- 1000 per sec
+Config.sv_dataClearnigTimer = 1000 * 60 * 60 -- 1000 per sec
 Config.sv_maxTableSize = 5000 -- saved entites in table
 
 -- End
@@ -15,20 +15,20 @@ Config.ShootingProtection = false
 Config.ProtectedWeapons = {'weapon_musket'}
 -- End
 
-Config.BaitCooldown = 5000 -- 1000 per sec
-Config.SpawningTimer = 5000 -- script will wait until "SpawningTimer" time out then it's spwan animal  
+Config.BaitCooldown = 1000 * 30 -- 1000 per sec
+Config.SpawningTimer = 1000 * 60 -- script will wait until "SpawningTimer" time out then it will spwan animal  
 
-Config.AnimalsEatingSpeed = 7500 -- how much animals will wait in baits location
+Config.AnimalsEatingSpeed = 1000 * 15 -- how much animals will wait in baits location
 Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 
-Config.BaitPlacementSpeed = math.random(3000, 3000)
-Config.SlaughteringSpeed = math.random(1000, 5000)
+Config.BaitPlacementSpeed = math.random(1000 * 15, 1000 * 30)
+Config.SlaughteringSpeed = math.random(1000 * 7, 1000 * 15)
 
 Config.maxSpawnDistance = 100 -- animal spwan radius from placed bait
 Config.minSpawnDistance = 60 -- animal spwan radius from placed bait
 Config.spawnAngle = {0, 360} -- animal spwan radius from placed bait
 
-Config.animalDespawnRange = 500.0
+Config.animalDespawnRange = 150.0
 
 Config.spawnedAnimalsBlips = true -- when animals spawend it will appears in map with blips on them
 Config.AnimalBlip = {
@@ -36,7 +36,7 @@ Config.AnimalBlip = {
     color = 5
 }
 
-Config.callPoliceChance = {25, 75} -- 25 + 75 = 100% ( 25% chance to call police )
+Config.callPoliceChance = {25, 75} -- 25 + 75 = 100% ( this means 25% chance to call police )
 
 Config.llegalHuntingNotification = function(animalCoord)
     TriggerEvent("police:client:policeAlert", animalCoord, "illegal Hunting in area")
@@ -45,7 +45,7 @@ end
 Config.Animals = {{
     model = "a_c_deer",
     -- {legal area spawn chance , illegal area spawn chance}
-    spwanRarity = {20, 100},
+    spwanRarity = {20, 25},
     hash = -664053099,
     -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
     -- note: 100% chance means every time players gonna get that item and script will not use RNG system.
@@ -63,18 +63,18 @@ Config.Animals = {{
     Loots = {{"meatpig", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_boar",
-    spwanRarity = {30, 0},
+    spwanRarity = {30, 25},
     hash = -832573324,
 
     Loots = {{"meatpig", 100}, {"plastic", 50}}
 }, {
     model = "a_c_mtlion",
-    spwanRarity = {0, 0},
+    spwanRarity = {25, 50},
     hash = 307287994,
     Loots = {{"meatlion", 100, 150}, {"plastic", 50}}
 }, {
     model = "a_c_cow",
-    spwanRarity = {30, 0},
+    spwanRarity = {0, 0},
     hash = -50684386,
     Loots = {{"meatcow", 100, 150}, {"plastic", 50}}
 }, {
@@ -116,37 +116,53 @@ Config.HuntingArea = {{
 Config.HuntingShopItems = {
     [1] = {
         name = 'weapon_musket',
-        price = 500,
-        amount = 2,
+        price = 1500,
+        amount = 10,
         info = {},
-        type = 'item',
+        type = 'weapon',
         slot = 1
     },
     [2] = {
         name = 'shotgun_ammo',
         price = 100,
-        amount = 2,
+        amount = 50,
         info = {},
         type = 'item',
         slot = 2
     },
     [3] = {
         name = 'huntingbait',
-        price = 200,
-        amount = 50,
+        price = 150,
+        amount = 150,
         info = {},
         type = 'item',
         slot = 3
     },
     [4] = {
         name = 'weapon_knife',
-        price = 200,
-        amount = 1,
+        price = 500,
+        amount = 50,
         info = {},
         type = 'item',
         slot = 4
     }
 }
+
+-- Config.Locations = {
+--     ["huntingshop"] = {
+--         ["label"] = "Hunting Shop",
+--         ["coords"] = {
+--             [1] = vector4(-679.82, 5838.92, 17.33, 217.45)
+--         },
+--         ["ped"] = {
+--             ["model"] = 'ig_hunter'
+--         },
+--         ["radius"] = 1.5,
+--         ["products"] = Config.Products["huntingshop"],
+--         ["showblip"] = true,
+--         ["blipsprite"] = 52
+--     }
+-- }
 
 Config.Shop = {
     ["name"] = "huntingshop",
@@ -158,17 +174,14 @@ Config.HuntingShopNpc = {{
     name = 'hunting shop',
     showBlip = true,
     SellerNpc = {
-        model = 'ig_hunter', -- This is the ped model that is going to be spawning at the given coords
-        coords = vector4(-679.82, 5838.92, 17.33, 217.45), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
-        minusOne = true, -- Set this to true if your ped is hovering above the ground but you want it on the ground (OPTIONAL)
-        freeze = true, -- Set this to true if you want the ped to be frozen at the given coords (OPTIONAL)
-        invincible = true, -- Set this to true if you want the ped to not take any damage from any source (OPTIONAL)
-        blockevents = true, -- Set this to true if you don't want the ped to react the to the environment (OPTIONAL)
-        -- animDict = 'abigail_mcs_1_concat-0', -- This is the animation dictionairy to load the animation to play from (OPTIONAL)
-        -- anim = 'csb_abigail_dual-0', -- This is the animation that will play chosen from the animDict, this will loop the whole time the ped is spawned (OPTIONAL)
-        flag = 1, -- This is the flag of the animation to play, for all the flags, check the TaskPlayAnim native here https://docs.fivem.net/natives/?_0x5AB552C6 (OPTIONAL)
-        -- scenario = 'WORLD_HUMAN_AA_COFFEE', -- This is the scenario that will play the whole time the ped is spawned, this cannot pair with anim and animDict (OPTIONAL)
-        currentpednumber = 0 -- This is the current ped number, this will be assigned when spawned, you can leave this out because it will always be created (OPTIONAL)
+        model = 'ig_hunter',
+        coords = vector4(-679.82, 5838.92, 17.33, 217.45),
+        minusOne = true,
+        freeze = true,
+        invincible = true,
+        blockevents = true,
+        flag = 1,
+        currentpednumber = 0
     }
 }}
 
@@ -177,16 +190,13 @@ Config.SellSpots = {{
     name = 'sell hunting stuff!',
     showBlip = true,
     SellerNpc = {
-        model = 'csb_chef', -- This is the ped model that is going to be spawning at the given coords
-        coords = vector4(570.34, 2796.46, 42.01, 294.27), -- This is the coords that the ped is going to spawn at, always has to be a vector4 and the w value is the heading
-        minusOne = true, -- Set this to true if your ped is hovering above the ground but you want it on the ground (OPTIONAL)
-        freeze = true, -- Set this to true if you want the ped to be frozen at the given coords (OPTIONAL)
-        invincible = true, -- Set this to true if you want the ped to not take any damage from any source (OPTIONAL)
-        blockevents = true, -- Set this to true if you don't want the ped to react the to the environment (OPTIONAL)
-        -- animDict = 'abigail_mcs_1_concat-0', -- This is the animation dictionairy to load the animation to play from (OPTIONAL)
-        -- anim = 'csb_abigail_dual-0', -- This is the animation that will play chosen from the animDict, this will loop the whole time the ped is spawned (OPTIONAL)
-        flag = 1, -- This is the flag of the animation to play, for all the flags, check the TaskPlayAnim native here https://docs.fivem.net/natives/?_0x5AB552C6 (OPTIONAL)
-        -- scenario = 'WORLD_HUMAN_AA_COFFEE', -- This is the scenario that will play the whole time the ped is spawned, this cannot pair with anim and animDict (OPTIONAL)
-        currentpednumber = 0 -- This is the current ped number, this will be assigned when spawned, you can leave this out because it will always be created (OPTIONAL)
+        model = 'csb_chef',
+        coords = vector4(570.34, 2796.46, 42.01, 294.27),
+        minusOne = true,
+        freeze = true,
+        invincible = true,
+        blockevents = true,
+        flag = 1,
+        currentpednumber = 0
     }
 }}

@@ -78,6 +78,9 @@ function initHuntingShopNpcQbTargets(HuntingShopNpc)
                 event = "keep-hunting:marketshop",
                 icon = "fas fa-gun",
                 label = "Hunting Shop"
+                -- action = function()
+                --     openShop('huntingshop', Config.Locations['huntingshop'])
+                -- end
             }},
             distance = 2.5
         })
@@ -307,3 +310,4 @@ function ToggleSlaughterAnimation(toggle, animalEnity)
         ClearPedTasks(ped)
     end
 end
+

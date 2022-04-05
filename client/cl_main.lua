@@ -21,6 +21,8 @@ local spawnedAnimalsBlipsConfig = Config.AnimalBlip
 --      FUNCTIONS
 -- ============================
 
+-- add dog companion
+
 -- add CircleZone for hunting zones
 function AddCircleZone(name, llegal, center, radius, options)
     Zones[name] = CircleZone:Create(center, radius, options)
@@ -50,14 +52,16 @@ AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
     local animal = getAnimalMatch(model)
 
     if (model and animal) then
+
         CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
             if hasitem then
+                ClearPedTasks(PlayerPedId())
                 ToggleSlaughterAnimation(true, entity)
                 CoreName.Functions.Progressbar("harv_anim", "Slaughtering Animal", Config.SlaughteringSpeed, false,
                     false, {
                         disableMovement = true,
-                        disableCarMovement = false,
-                        disableMouse = false,
+                        disableCarMovement = true,
+                        disableMouse = true,
                         disableCombat = true
                     }, {}, {}, {}, function()
                         ToggleSlaughterAnimation(false, 0)
@@ -115,6 +119,12 @@ disablePlayerFiring = function()
     DisableControlAction(0, 114) -- INPUT_VEH_FLY_ATTACK
     DisableControlAction(0, 257) -- INPUT_ATTACK2
     DisableControlAction(0, 331) -- INPUT_VEH_FLY_ATTACK2
+
+    DisableControlAction(0, 282) -- INPUT_VEH_FLY_ATTACK2
+    DisableControlAction(0, 24, true)
+    DisableControlAction(0, 47, true)
+    DisableControlAction(0, 58, true)
+    DisablePlayerFiring(ped, true)
 end
 
 local function blockShooting()
@@ -123,14 +133,21 @@ local function blockShooting()
             Citizen.Wait(1)
             local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(PlayerId(-1))
             local PedType = GetPedType(targetPed)
+            local PlyPedId = GetPlayerPed(-1)
+
+            disablePlayerFiring()
 
             if aiming then
-                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and (PedType == 1 or PedType == 2) then
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and (PedType == 4 or PedType == 5) then
                     DisablePlayerFiring(PlayerId(), true)
                     disablePlayerFiring()
                 end
             else
-                hasMusket = false
+                if IsPedShooting(PlyPedId) then
+                    SetCurrentPedWeapon(PlayerPedId(), "weapon_unarmed", true)
+                else
+                    hasMusket = false
+                end
             end
         end
     end)
@@ -234,6 +251,7 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, 
 
     if spawnedAnimalsBlips == true then
         local blip = AddBlipForEntity(baitAnimal)
+        LeastSpawnedAnimal = baitAnimal
         SetBlipSprite(blip, spawnedAnimalsBlipsConfig.sprite) -- if you want the animals to have blips change the 0 to a different blip number
         SetBlipColour(blip, spawnedAnimalsBlipsConfig.color)
         BeginTextCommandSetBlipName("STRING")
@@ -278,3 +296,4 @@ AddEventHandler('keep-hunting:client:clearTask', function()
     local playerPed = PlayerPedId()
     ClearPedTasks(playerPed)
 end)
+
