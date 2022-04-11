@@ -20,14 +20,14 @@ Config.ShootingProtection = false
 Config.ProtectedWeapons = { 'weapon_musket' }
 -- End
 
-Config.BaitCooldown = 1000 * 5 -- 1000 per sec
-Config.SpawningTimer = 1000 * 5 -- script will wait until "SpawningTimer" time out then it will spwan animal
+Config.BaitCooldown = 1000 * 30 -- 1000 per sec
+Config.SpawningTimer = 1000 * 10 -- script will wait until "SpawningTimer" time out then it will spwan animal
 
 Config.AnimalsEatingSpeed = 1000 * 15 -- how much animals will wait in baits location
 Config.AnimalsFleeView = 15.0 -- animal Flee range if they get to see players
 
-Config.BaitPlacementSpeed = math.random(1000 * 3, 1000 * 5)
-Config.SlaughteringSpeed = math.random(1000 * 3, 1000 * 5)
+Config.BaitPlacementSpeed = math.random(1000 * 5, 1000 * 7)
+Config.SlaughteringSpeed = math.random(1000 * 5, 1000 * 7)
 
 Config.maxSpawnDistance = 100 -- animal spwan radius from placed bait
 Config.minSpawnDistance = 60 -- animal spwan radius from placed bait
@@ -49,7 +49,7 @@ Config.llegalHuntingNotification = function(animalCoord)
     TriggerEvent("police:client:policeAlert", animalCoord, "illegal Hunting in area")
 end
 
--- lot Multiplier settings
+-- loot Multiplier settings
 Config.activateLootMultiplier = true
 Config.maxMultiplier = 10
 

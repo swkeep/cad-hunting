@@ -88,16 +88,20 @@ function calMultiplier(multiplier)
         for key, boneMeta in pairs(Config.boneHitMultiplier) do
             for key, damagedBones in pairs(multiplier['bones']) do
                 if boneMeta.bondeId == damagedBones then
+                    local metaMultiplier = boneMeta.multiplier
                     if boneMeta.lastHit == true and #multiplier['bones'] == 1 then
                         -- headshot and one tab kills
                         return math.floor(boneMeta.multiplier)
+                    elseif boneMeta.lastHit == true and #multiplier['bones'] ~= 1 then
+                        metaMultiplier = 0
                     end
-                    result = result + math.floor(boneMeta.multiplier)
+                    result = result + metaMultiplier
                     count = count + 1
                 end
             end
         end
-        result = result + multiplier.weapon + #multiplier['bones'] * Config.boneHitMultiplier.default.multiplier
+
+        result = result + multiplier.weapon + (#multiplier['bones'] - count) * Config.boneHitMultiplier.default.multiplier
         --multiplier.weapon
         if result > Config.maxMultiplier then
             result = Config.maxMultiplier
