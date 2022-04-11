@@ -1,5 +1,34 @@
 local DEBUG = Config.DEBUG
 local CoreName = exports['qb-core']:GetCoreObject()
+AnimalLootMultiplier = {}
+
+function AnimalLootMultiplier:new(ped, options)
+    if ped == nil then
+        return 'no ped found'
+    end
+    if self[ped] == nil then
+        self[ped] = {}
+    end
+    if self[ped]['bones'] == nil then
+        self[ped]['bones'] = {}
+    end
+
+    if options.bone ~= nil then
+        table.insert(self[ped]['bones'], options.bone)
+    end
+
+    if options.weapon ~= nil then
+        self[ped]['weapon'] = options.weapon
+    end
+end
+
+function AnimalLootMultiplier:read(ped)
+    if self[ped] ~= nil then
+        return self[ped]
+    else
+        return false
+    end
+end
 
 function createCustomBlips(data)
     for _, v in pairs(data) do
@@ -45,7 +74,7 @@ function createCustomBlips(data)
     end
 end
 
--- init qb-target for selling spots 
+-- init qb-target for selling spots
 function initSellspotsQbTargets(sellspot)
     for _, v in pairs(sellspot) do
         -- spwan seller npcs
@@ -55,53 +84,21 @@ function initSellspotsQbTargets(sellspot)
 
         -- init qb-target for sellers
         exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = {{
+            options = { {
                 event = "keep-hunting:client:sellREQ",
                 icon = "fas fa-sack-dollar",
                 label = "Sell All"
-            }},
+            } },
             distance = 2.5
         })
-    end
-end
-
-function initHuntingShopNpcQbTargets(HuntingShopNpc)
-    for _, v in pairs(HuntingShopNpc) do
-        -- spwan seller npcs
-        exports['qb-target']:SpawnPed({
-            [_] = v.SellerNpc
-        })
-
-        -- init qb-target for sellers
-        exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = {{
-                event = "keep-hunting:marketshop",
-                icon = "fas fa-gun",
-                label = "Hunting Shop"
-            }},
-            distance = 2.5
-        })
-
-        if v.showBlip == true then
-            StoreBlip = AddBlipForCoord(v.BlipsCoords)
-            SetBlipColour(StoreBlip, 0)
-            SetBlipSprite(StoreBlip, 626)
-            SetBlipScale(StoreBlip, 1.0)
-            SetBlipColour(StoreBlip, 1)
-            SetBlipAsShortRange(StoreBlip, true)
-            BeginTextCommandSetBlipName("STRING")
-            AddTextComponentString(v.name)
-            EndTextCommandSetBlipName(StoreBlip)
-        end
-
     end
 end
 
 -- init qb-target for hunted animals
-function initAnimalsTargting()
+function putQbTargetAllOnAnimals()
     for _, v in pairs(Config.Animals) do
         exports['qb-target']:AddTargetModel(v.model, {
-            options = {{
+            options = { {
                 icon = "fas fa-sack-dollar",
                 label = "slaughter",
                 canInteract = function(entity)
@@ -116,10 +113,30 @@ function initAnimalsTargting()
                     TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
                     return true
                 end
-            }},
+            } },
             distance = 1.5
         })
     end
+end
+
+function putQbTargetOnEntity(ped)
+    exports['qb-target']:AddTargetEntity(ped, {
+        options = { {
+            icon = "fas fa-sack-dollar",
+            label = "slaughter",
+            canInteract = function(entity)
+                return IsEntityDead(entity)
+            end,
+            action = function(entity)
+                if IsEntityDead(entity) == false then
+                    return false
+                end
+                TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
+                return true
+            end
+        } },
+        distance = 1.5
+    })
 end
 
 -- match hash with out animal list
@@ -163,9 +180,9 @@ function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity)
                 end)
             end
             if #(entityCoord - playerCoord) < FleeView then
-                -- animal flee view 
-                ClearPedTasks(entity)
-                TaskSmartFleePed(entity, playerPed, 600.0, -1)
+                -- animal flee view
+                -- ClearPedTasks(entity)
+                --TaskSmartFleePed(entity, playerPed, 600.0, -1)
                 finished = true
             end
 
@@ -232,6 +249,7 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
     Citizen.CreateThread(function()
         local finished = false
         local range = Config.animalDespawnRange
+        local maxHelath = GetEntityMaxHealth(baitAnimal)
 
         while finished == false do
             local plyPed = PlayerPedId()
@@ -261,10 +279,59 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
                 finished = true
             end
-
             Wait(1000)
         end
     end)
+    CreateThread(function()
+        local maxHealth = GetPedMaxHealth(baitAnimal)
+        local tmpHealth = maxHealth
+        while IsPedDeadOrDying(baitAnimal) == false do
+            local currentHealth = GetEntityHealth(baitAnimal)
+            if currentHealth ~= tmpHealth then
+                local retval, outBone = GetPedLastDamageBone(baitAnimal)
+                print(currentHealth, outBone)
+                AnimalLootMultiplier:new(baitAnimal, {
+                    bone = outBone
+                })
+                tmpHealth = currentHealth
+            end
+            Wait(50)
+        end
+
+        if IsPedDeadOrDying(baitAnimal) == 1 then
+            Wait(100)
+            -- https://github.com/citizenfx/fivem/blob/master/code/client/clrcore/External/BoneID.cs
+            -- SKEL_Head = 31086 headshot
+            local retval, outBone = GetPedLastDamageBone(baitAnimal)
+
+            local weaponHash = GetPedCauseOfDeath(baitAnimal)
+            WeaponQuality = getWeaponQualityMultiplier(weaponHash)
+
+            AnimalLootMultiplier:new(baitAnimal, {
+                bone = outBone,
+                weapon = WeaponQuality
+            })
+        end
+    end)
+
+end
+
+function getWeaponQualityMultiplier(weaponHash)
+    for key, value in pairs(Config.weaponQualityMultiplier) do
+        if GetHashKey(key) == weaponHash then
+            return value
+        end
+    end
+    return Config.weaponQualityMultiplier.default
+end
+
+function search(table, text)
+    for index, data in ipairs(table) do
+        if data == text then
+            return true
+        end
+    end
+    return false
 end
 
 -- @type number
@@ -283,15 +350,6 @@ function makeEntityFaceEntity(entity1, entity2)
     SetEntityHeading(entity1, heading)
 end
 
-RegisterNetEvent('keep-hunting:marketshop')
-AddEventHandler('keep-hunting:marketshop', function(shop, itemData, amount)
-    local ShopItems = {}
-    ShopItems.label = Config.Shop["label"]
-    ShopItems.items = Config.HuntingShopItems
-    ShopItems.slots = 30
-    TriggerServerEvent("inventory:server:OpenInventory", "shop", "Itemshop_" .. Config.Shop["name"], ShopItems)
-end)
-
 function ToggleSlaughterAnimation(toggle, animalEnity)
     local ped = PlayerPedId()
     Wait(250)
@@ -300,7 +358,7 @@ function ToggleSlaughterAnimation(toggle, animalEnity)
         loadAnimDict('amb@medic@standing@kneel@base')
         loadAnimDict('anim@gangops@facility@servers@bodysearch@')
         TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false, false)
-        TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0, -1, 48,
+        TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0, -1, 1,
             0, false, false, false)
     elseif not toggle then
         SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true)
