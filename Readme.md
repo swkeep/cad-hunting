@@ -27,6 +27,7 @@
 	["huntingbait"] 		 			 = {["name"] = "huntingbait",       	    	["label"] = "Hunting Bait",	 				["weight"] = 150, 		["type"] = "item", 		["image"] = "huntingbait.png", 			["unique"] = false, 	["useable"] = true, 	["shouldClose"] = true,   ["combinable"] = nil,   ["description"] = "Hunting Bait"},
 ```
 
+<<<<<<< HEAD
 - qb-shops config
 - Modify qb-shops/config.lua and add this values at end of each table inside the config file ==> Config.Products/Config.Locations
 
@@ -84,6 +85,33 @@ Config.Locations = {
         ["colour"] = 1
     },
 }
+=======
+- hunting shop config
+- Modify qb-shops/server/main.lua as showed in code
+
+```lua
+RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
+    Config.Locations[shop]["products"][itemData.slot].amount =
+        Config.Locations[shop]["products"][itemData.slot].amount - amount
+    if Config.Locations[shop]["products"][itemData.slot].amount <= 0 then
+        Config.Locations[shop]["products"][itemData.slot].amount = 0
+    end
+    TriggerClientEvent('qb-shops:client:SetShopItems', -1, shop, Config.Locations[shop]["products"])
+end)
+```
+
+```lua
+RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
+    if shop ~= "huntingshop" then
+        Config.Locations[shop]["products"][itemData.slot].amount =
+            Config.Locations[shop]["products"][itemData.slot].amount - amount
+        if Config.Locations[shop]["products"][itemData.slot].amount <= 0 then
+            Config.Locations[shop]["products"][itemData.slot].amount = 0
+        end
+        TriggerClientEvent('qb-shops:client:SetShopItems', -1, shop, Config.Locations[shop]["products"])
+    end
+end)
+>>>>>>> f53b9eab9f73adf011b9cc9f6ca32bff175cc25e
 ```
 
 # Config file
@@ -110,4 +138,8 @@ Config.Animals = {{
 
 - This is how chances of spawning work:
 
+<<<<<<< HEAD
 ![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)
+=======
+![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/main/.github/img/chance.JPG)
+>>>>>>> f53b9eab9f73adf011b9cc9f6ca32bff175cc25e
