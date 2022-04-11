@@ -62,7 +62,12 @@ AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
                         disableCombat = true
                     }, {}, {}, {}, function()
                         ToggleSlaughterAnimation(false, 0)
-                        TriggerServerEvent('keep-hunting:server:AddItem', animal, entity)
+                        if AnimalLootMultiplier:read(entity) ~= nil and AnimalLootMultiplier:read(entity) ~= false then
+                            TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, AnimalLootMultiplier:read(entity))
+                        else
+                            -- defalut values for multipiler
+                            TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, 'defalut')
+                        end
                         Citizen.Wait(100)
                     end)
             else
@@ -79,6 +84,7 @@ end)
 RegisterNetEvent('keep-hunting:client:ForceRemoveAnimalEntity')
 AddEventHandler('keep-hunting:client:ForceRemoveAnimalEntity', function(entity)
     DeleteEntity(entity)
+    AnimalLootMultiplier[entity] = nil
 end)
 
 function isPedInHuntingZone(type)

@@ -9,7 +9,7 @@ local Animals = Config.Animals
 local animalsEnity = {} -- prevent players to slaughter twice
 
 RegisterServerEvent("keep-hunting:server:AddItem")
-AddEventHandler("keep-hunting:server:AddItem", function(data, entity)
+AddEventHandler("keep-hunting:server:AddItem", function(data, entity, multiplier)
     local _source = source
     local Player = CoreName.Functions.GetPlayer(_source)
 
@@ -19,7 +19,7 @@ AddEventHandler("keep-hunting:server:AddItem", function(data, entity)
             if animalsEnity ~= nil then
                 if isAleadySlaughtered(entity) == false then
                     setHash(entity) -- prevent player to slaughter twice
-                    choiceRewardsForPlayer(v.Loots, _source, Player)
+                    choiceRewardsForPlayer(v.Loots, _source, Player, multiplier)
                     TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
                 else
                     TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
@@ -28,17 +28,18 @@ AddEventHandler("keep-hunting:server:AddItem", function(data, entity)
             else
                 -- init animalsEnity table
                 setHash(entity) -- prevent player to slaughter twice
-                choiceRewardsForPlayer(v.Loots, _source, Player)
+                choiceRewardsForPlayer(v.Loots, _source, Player, multiplier)
             end
         end
     end
 end)
 
-function choiceRewardsForPlayer(LootTable, _source, Player)
+function choiceRewardsForPlayer(LootTable, _source, Player, multiplier)
     local tmpRewardChances = {}
     local DefiniteRewardsList = {}
     local ChanceRewardsList = {}
     local CalculatedPlayerRwardList = {}
+    local multiplierResult = 0
 
     for key, value in pairs(LootTable) do
         -- value[1] contains item names
@@ -50,7 +51,7 @@ function choiceRewardsForPlayer(LootTable, _source, Player)
             table.insert(DefiniteRewardsList, value[1])
         else
             -- Chance
-            table.insert(tmpRewardChances, {value[1], value[2]})
+            table.insert(tmpRewardChances, { value[1], value[2] })
         end
     end
 
@@ -58,12 +59,60 @@ function choiceRewardsForPlayer(LootTable, _source, Player)
         ChanceRewardsList = CompleteRestOfChancesData(tmpRewardChances)
     end
 
-    CalculatedPlayerRwardList = {table.unpack(DefiniteRewardsList), table.unpack(ChanceRewardsList)}
+    CalculatedPlayerRwardList = { table.unpack(DefiniteRewardsList), table.unpack(ChanceRewardsList) }
+
+    multiplierResult = calMultiplier(multiplier)
 
     for key, value in pairs(CalculatedPlayerRwardList) do
-        Player.Functions.AddItem(value, 1)
-        TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[value], "add")
+
+        if multiplierResult ~= 0 then
+            Player.Functions.AddItem(value, multiplierResult)
+            TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[value], "add")
+        else
+            Player.Functions.AddItem(value, 1)
+            TriggerClientEvent("inventory:client:ItemBox", _source, CoreName.Shared.Items[value], "add")
+        end
+
     end
+end
+
+function calMultiplier(multiplier)
+    if Config.activateLootMultiplier == nil or Config.activateLootMultiplier == false then
+        return 0
+    end
+    if multiplier ~= nil and type(multiplier) == "table" then
+        -- parse multipliers
+        local result = 0
+        local count = 0
+
+        for key, boneMeta in pairs(Config.boneHitMultiplier) do
+            for key, damagedBones in pairs(multiplier['bones']) do
+                if boneMeta.bondeId == damagedBones then
+                    if boneMeta.lastHit == true and #multiplier['bones'] == 1 then
+                        -- headshot and one tab kills
+                        return math.floor(boneMeta.multiplier)
+                    end
+                    result = result + math.floor(boneMeta.multiplier)
+                    count = count + 1
+                end
+            end
+        end
+        result = result + multiplier.weapon + #multiplier['bones'] * Config.boneHitMultiplier.default.multiplier
+        --multiplier.weapon
+        if result > Config.maxMultiplier then
+            result = Config.maxMultiplier
+        end
+        if result < 0 then
+            result = 0
+        end
+        return result
+    elseif multiplier ~= nil and type(multiplier) == "string" and multiplier == 'default' then
+        --Config.weaponQualitymultiplier.default
+
+        --Config.boneHitmultiplier.default
+
+    end
+    return 0
 end
 
 function CompleteRestOfChancesData(RewardChances)
@@ -71,7 +120,7 @@ function CompleteRestOfChancesData(RewardChances)
     local sample
     local temp = {}
     for key, value in pairs(RewardChances) do
-        sample = Alias_table_wrapper({value[2], (100 - value[2])})
+        sample = Alias_table_wrapper({ value[2], (100 - value[2]) })
         if sample == 1 then
             table.insert(temp, value[1])
         end
@@ -161,7 +210,7 @@ end
 -- ============================
 
 CoreName.Commands.Add("spawnanimal", "Spawn Animals (Admin Only)",
-    {{"model", "Animal Model"}, {"was_llegal", "area of hunt true/false"}}, false, function(source, args)
+    { { "model", "Animal Model" }, { "was_llegal", "area of hunt true/false" } }, false, function(source, args)
         TriggerClientEvent('keep-hunting:client:spawnanim', source, args[1], args[2])
     end, 'admin')
 
