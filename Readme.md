@@ -27,29 +27,87 @@
 	["huntingbait"] 		 			 = {["name"] = "huntingbait",       	    	["label"] = "Hunting Bait",	 				["weight"] = 150, 		["type"] = "item", 		["image"] = "huntingbait.png", 			["unique"] = false, 	["useable"] = true, 	["shouldClose"] = true,   ["combinable"] = nil,   ["description"] = "Hunting Bait"},
 ```
 
-- hunting shop config
-- Modify qb-shops/server/main.lua as showed in code
-
-```lua 
-RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
-    Config.Locations[shop]["products"][itemData.slot].amount =
-        Config.Locations[shop]["products"][itemData.slot].amount - amount
-    if Config.Locations[shop]["products"][itemData.slot].amount <= 0 then
-        Config.Locations[shop]["products"][itemData.slot].amount = 0
-    end
-    TriggerClientEvent('qb-shops:client:SetShopItems', -1, shop, Config.Locations[shop]["products"])
-end)
-```
+- qb-shops config
+- Modify qb-shops/config.lua and add this values at end of each table inside the config file ==> Config.Products/Config.Locations
 
 ```lua
-RegisterNetEvent('qb-shops:server:UpdateShopItems', function(shop, itemData, amount)
-    if shop ~= "huntingshop" then
-        Config.Locations[shop]["products"][itemData.slot].amount =
-            Config.Locations[shop]["products"][itemData.slot].amount - amount
-        if Config.Locations[shop]["products"][itemData.slot].amount <= 0 then
-            Config.Locations[shop]["products"][itemData.slot].amount = 0
-        end
-        TriggerClientEvent('qb-shops:client:SetShopItems', -1, shop, Config.Locations[shop]["products"])
-    end
-end)
+Config.Products = {
+    ["huntingshop"] = {
+        [1] = {
+            name = 'weapon_musket',
+            price = 1500,
+            amount = 10,
+            info = {},
+            type = 'weapon',
+            slot = 1
+        },
+        [2] = {
+            name = 'shotgun_ammo',
+            price = 100,
+            amount = 50,
+            info = {},
+            type = 'item',
+            slot = 2
+        },
+        [3] = {
+            name = 'huntingbait',
+            price = 150,
+            amount = 150,
+            info = {},
+            type = 'item',
+            slot = 3
+        },
+        [4] = {
+            name = 'weapon_knife',
+            price = 500,
+            amount = 50,
+            info = {},
+            type = 'item',
+            slot = 4
+        }
+    },
+}
+
+Config.Locations = {
+    ["huntingshop"] = {
+        ["label"] = "Hunting Shop",
+        ["coords"] = {
+            [1] = vector4(-679.82, 5838.92, 17.33, 217.45)
+        },
+        ["ped"] = {
+            ["model"] = 'ig_hunter'
+        },
+        ["radius"] = 1.5,
+        ["products"] = Config.Products["huntingshop"],
+        ["showblip"] = true,
+        ["blipsprite"] = 626,
+        ["colour"] = 1
+    },
+}
 ```
+
+# Config file
+
+```lua
+Config.Animals = {{
+    model = "a_c_deer",
+    -- {legal area spawn chance , illegal area spawn chance}
+    spwanRarity = {20, 100},
+    hash = -664053099,
+    -- Loots: determines what players gonna get after they slaughtered animals
+    -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
+    -- note: 100% chance means every time players gonna get that item
+    -- IMPORTANT: if you leave price with nil value players can't sell those items to Vendor. for example plastic in here
+    -- note: 100% meatdeer + 50% plastic The following means that players have a chance to receive (meatdeer + plastic) at once.
+    Loots = {{"meatdeer", 100, 150}, {"plastic", 50}}
+},
+.
+.
+.
+
+}
+```
+
+- This is how chances of spawning work:
+
+![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)
