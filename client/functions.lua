@@ -45,7 +45,7 @@ function createCustomBlips(data)
     end
 end
 
--- init qb-target for selling spots 
+-- init qb-target for selling spots
 function initSellspotsQbTargets(sellspot)
     for _, v in pairs(sellspot) do
         -- spwan seller npcs
@@ -55,56 +55,21 @@ function initSellspotsQbTargets(sellspot)
 
         -- init qb-target for sellers
         exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = {{
+            options = { {
                 event = "keep-hunting:client:sellREQ",
                 icon = "fas fa-sack-dollar",
                 label = "Sell All"
-            }},
+            } },
             distance = 2.5
         })
-    end
-end
-
-function initHuntingShopNpcQbTargets(HuntingShopNpc)
-    for _, v in pairs(HuntingShopNpc) do
-        -- spwan seller npcs
-        exports['qb-target']:SpawnPed({
-            [_] = v.SellerNpc
-        })
-
-        -- init qb-target for sellers
-        exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = {{
-                event = "keep-hunting:marketshop",
-                icon = "fas fa-gun",
-                label = "Hunting Shop"
-                -- action = function()
-                --     openShop('huntingshop', Config.Locations['huntingshop'])
-                -- end
-            }},
-            distance = 2.5
-        })
-
-        if v.showBlip == true then
-            StoreBlip = AddBlipForCoord(v.BlipsCoords)
-            SetBlipColour(StoreBlip, 0)
-            SetBlipSprite(StoreBlip, 626)
-            SetBlipScale(StoreBlip, 1.0)
-            SetBlipColour(StoreBlip, 1)
-            SetBlipAsShortRange(StoreBlip, true)
-            BeginTextCommandSetBlipName("STRING")
-            AddTextComponentString(v.name)
-            EndTextCommandSetBlipName(StoreBlip)
-        end
-
     end
 end
 
 -- init qb-target for hunted animals
-function initAnimalsTargting()
+function putQbTargetAllOnAnimals()
     for _, v in pairs(Config.Animals) do
         exports['qb-target']:AddTargetModel(v.model, {
-            options = {{
+            options = { {
                 icon = "fas fa-sack-dollar",
                 label = "slaughter",
                 canInteract = function(entity)
@@ -119,10 +84,30 @@ function initAnimalsTargting()
                     TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
                     return true
                 end
-            }},
+            } },
             distance = 1.5
         })
     end
+end
+
+function putQbTargetOnEntity(ped)
+    exports['qb-target']:AddTargetEntity(ped, {
+        options = { {
+            icon = "fas fa-sack-dollar",
+            label = "slaughter",
+            canInteract = function(entity)
+                return IsEntityDead(entity)
+            end,
+            action = function(entity)
+                if IsEntityDead(entity) == false then
+                    return false
+                end
+                TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
+                return true
+            end
+        } },
+        distance = 1.5
+    })
 end
 
 -- match hash with out animal list
@@ -166,7 +151,7 @@ function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity)
                 end)
             end
             if #(entityCoord - playerCoord) < FleeView then
-                -- animal flee view 
+                -- animal flee view
                 ClearPedTasks(entity)
                 TaskSmartFleePed(entity, playerPed, 600.0, -1)
                 finished = true
@@ -286,15 +271,6 @@ function makeEntityFaceEntity(entity1, entity2)
     SetEntityHeading(entity1, heading)
 end
 
-RegisterNetEvent('keep-hunting:marketshop')
-AddEventHandler('keep-hunting:marketshop', function(shop, itemData, amount)
-    local ShopItems = {}
-    ShopItems.label = Config.Shop["label"]
-    ShopItems.items = Config.HuntingShopItems
-    ShopItems.slots = 30
-    TriggerServerEvent("inventory:server:OpenInventory", "shop", "Itemshop_" .. Config.Shop["name"], ShopItems)
-end)
-
 function ToggleSlaughterAnimation(toggle, animalEnity)
     local ped = PlayerPedId()
     Wait(250)
@@ -303,11 +279,10 @@ function ToggleSlaughterAnimation(toggle, animalEnity)
         loadAnimDict('amb@medic@standing@kneel@base')
         loadAnimDict('anim@gangops@facility@servers@bodysearch@')
         TaskPlayAnim(GetPlayerPed(-1), "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false, false)
-        TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0, -1, 48,
+        TaskPlayAnim(GetPlayerPed(-1), "anim@gangops@facility@servers@bodysearch@", "player_search", 8.0, -8.0, -1, 1,
             0, false, false, false)
     elseif not toggle then
         SetCurrentPedWeapon(ped, GetHashKey("WEAPON_UNARMED"), true)
         ClearPedTasks(ped)
     end
 end
-

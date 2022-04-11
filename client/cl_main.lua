@@ -33,7 +33,6 @@ end
 
 function initBlips()
     initSellspotsQbTargets(Config.SellSpots)
-    initHuntingShopNpcQbTargets(Config.HuntingShopNpc)
     createCustomBlips(Config.SellSpots)
     createCustomBlips(Config.HuntingArea)
 end
@@ -41,18 +40,16 @@ end
 Citizen.CreateThread(function()
     Wait(7)
     initBlips()
-    initAnimalsTargting()
-    -- SetRelationshipBetweenGroups(5, GetHashKey(GetPlayerPed(-1)), GetHashKey("a_c_mtlion"))
-    -- SetRelationshipBetweenGroups(5, GetHashKey("a_c_mtlion"), GetHashKey(GetPlayerPed(-1)))
+    if Config.SlughterEveryAnimal == true then
+        putQbTargetAllOnAnimals()
+    end
 end)
 
 AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
     local model = GetEntityModel(entity)
-    local animalCoord = GetEntityCoords(entity)
     local animal = getAnimalMatch(model)
 
     if (model and animal) then
-
         CoreName.Functions.TriggerCallback("QBCore:HasItem", function(hasitem)
             if hasitem then
                 ClearPedTasks(PlayerPedId())
@@ -109,9 +106,138 @@ end
 --      Bait
 -- ============================
 
+RegisterNetEvent('keep-hunting:client:useBait')
+AddEventHandler('keep-hunting:client:useBait', function()
+    local plyPed = PlayerPedId()
+    local coord = GetEntityCoords(plyPed)
+    local inHuntingZone = isPedInHuntingZone()
+    if inHuntingZone.inzone then
+        if deployedBaitCooldown <= 0 then
+            ClearPedTasks(plyPed)
+            TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
+            -- loadAnimDict('amb@medic@standing@kneel@base')
+            -- TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
+            -- false)
+            CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
+                disableMovement = true,
+                disableCarMovement = false,
+                disableMouse = false,
+                disableCombat = true
+            }, {}, {}, {}, function()
+                ClearPedTasks(plyPed)
+                createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal)
+            end)
+        else
+            CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
+        end
+    else
+        CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
+    end
+end)
+
+function createThreadAnimalSpawningTimer(coord, was_llegal)
+    local outPosition = getSpawnLocation(coord)
+
+    if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
+        Citizen.CreateThread(function()
+            startSpawningTimer = spawningTime
+            while startSpawningTimer > 0 do
+                startSpawningTimer = startSpawningTimer - 1000
+                Wait(1000)
+            end
+            if startSpawningTimer == 0 then
+                createThreadBaitCooldown()
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal)
+            else
+                CoreName.Functions.Notify("Failed to triger bait!")
+            end
+        end)
+    else
+        CoreName.Functions.Notify("pls find a better location for you bait!")
+    end
+end
+
+RegisterNetEvent('keep-hunting:client:spawnAnimal')
+AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal)
+    if not HasModelLoaded(C_animal.hash) then
+        RequestModel(C_animal.hash)
+        Wait(10)
+    end
+    while not HasModelLoaded(C_animal.hash) do
+        Wait(10)
+    end
+    local baitAnimal = CreatePed(28, C_animal.hash, outPosition.x, outPosition.y, outPosition.z, outPosition.w, true,
+        true)
+    SetEntityAsMissionEntity(baitAnimal, true, true)
+
+    if spawnedAnimalsBlips == true then
+        local blip = AddBlipForEntity(baitAnimal)
+        LeastSpawnedAnimal = baitAnimal
+        SetBlipSprite(blip, spawnedAnimalsBlipsConfig.sprite) -- if you want the animals to have blips change the 0 to a different blip number
+        SetBlipColour(blip, spawnedAnimalsBlipsConfig.color)
+        BeginTextCommandSetBlipName("STRING")
+        AddTextComponentString("bait animal")
+        EndTextCommandSetBlipName(blip)
+    end
+
+    if DoesEntityExist(baitAnimal) then
+        TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
+        createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal)
+        createDespawnThread(baitAnimal, was_llegal, coord)
+        print("debug: spwan success")
+        putQbTargetOnEntity(baitAnimal)
+    else
+        print("debug: spwan failed")
+    end
+end)
+
+-- ============================
+--      Spawning Ped Command
+-- ============================
+
+RegisterNetEvent('keep-hunting:client:spawnanim')
+AddEventHandler('keep-hunting:client:spawnanim', function(model, was_llegal)
+    model = (tonumber(model) ~= nil and tonumber(model) or GetHashKey(model))
+    local playerPed = PlayerPedId()
+    local coords = GetEntityCoords(playerPed)
+    local forward = GetEntityForwardVector(playerPed)
+    local x, y, z = table.unpack(coords + forward * 1.0)
+
+    Citizen.CreateThread(function()
+        RequestModel(model)
+        while not HasModelLoaded(model) do
+            Citizen.Wait(1)
+        end
+        baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
+        -- ExplodePedHead(baitAnimal, GetHashKey("weapon_musket"))
+        createDespawnThread(baitAnimal, was_llegal)
+    end)
+end)
+
+RegisterNetEvent('keep-hunting:client:clearTask')
+AddEventHandler('keep-hunting:client:clearTask', function()
+    local playerPed = PlayerPedId()
+    ClearPedTasks(playerPed)
+end)
+
+
+-- cooldown
+
+function createThreadBaitCooldown()
+    Citizen.CreateThread(function()
+        deployedBaitCooldown = baitCooldown
+        while deployedBaitCooldown > 0 do
+            deployedBaitCooldown = deployedBaitCooldown - 1000
+            Wait(1000)
+        end
+    end)
+end
+
+-- Shooting protection system
+
 local hasMusket = false
 
-disablePlayerFiring = function()
+function disablePlayerFiring()
     DisableControlAction(0, 24) -- INPUT_ATTACK
     DisableControlAction(0, 69) -- INPUT_VEH_ATTACK
     DisableControlAction(0, 70) -- INPUT_VEH_ATTACK2
@@ -174,126 +300,3 @@ if Config.ShootingProtection then
         end
     end)
 end
-
-RegisterNetEvent('keep-hunting:client:useBait')
-AddEventHandler('keep-hunting:client:useBait', function()
-    local plyPed = PlayerPedId()
-    local coord = GetEntityCoords(plyPed)
-    local inHuntingZone = isPedInHuntingZone()
-    if inHuntingZone.inzone then
-        if deployedBaitCooldown <= 0 then
-            ClearPedTasks(plyPed)
-            TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
-            -- loadAnimDict('amb@medic@standing@kneel@base')
-            -- TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
-            -- false)
-            CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
-                disableMovement = true,
-                disableCarMovement = false,
-                disableMouse = false,
-                disableCombat = true
-            }, {}, {}, {}, function()
-                ClearPedTasks(plyPed)
-                createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal)
-            end)
-        else
-            CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
-        end
-    else
-        CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
-    end
-end)
-
-function createThreadBaitCooldown()
-    Citizen.CreateThread(function()
-        deployedBaitCooldown = baitCooldown
-        while deployedBaitCooldown > 0 do
-            deployedBaitCooldown = deployedBaitCooldown - 1000
-            Wait(1000)
-        end
-    end)
-end
-
-function createThreadAnimalSpawningTimer(coord, was_llegal)
-    local outPosition = getSpawnLocation(coord)
-
-    if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
-        Citizen.CreateThread(function()
-            startSpawningTimer = spawningTime
-            while startSpawningTimer > 0 do
-                startSpawningTimer = startSpawningTimer - 1000
-                Wait(1000)
-            end
-            if startSpawningTimer == 0 then
-                createThreadBaitCooldown()
-                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal)
-            else
-                CoreName.Functions.Notify("Failed to triger bait!")
-            end
-        end)
-    else
-        CoreName.Functions.Notify("pls find a better location for you bait!")
-    end
-end
-
-RegisterNetEvent('keep-hunting:client:spawnAnimal')
-AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal)
-    if not HasModelLoaded(C_animal.hash) then
-        RequestModel(C_animal.hash)
-        Wait(10)
-    end
-    while not HasModelLoaded(C_animal.hash) do
-        Wait(10)
-    end
-    local baitAnimal = CreatePed(28, C_animal.hash, outPosition.x, outPosition.y, outPosition.z, outPosition.w, true,
-        true)
-    SetEntityAsMissionEntity(baitAnimal, true, true)
-
-    if spawnedAnimalsBlips == true then
-        local blip = AddBlipForEntity(baitAnimal)
-        LeastSpawnedAnimal = baitAnimal
-        SetBlipSprite(blip, spawnedAnimalsBlipsConfig.sprite) -- if you want the animals to have blips change the 0 to a different blip number
-        SetBlipColour(blip, spawnedAnimalsBlipsConfig.color)
-        BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("bait animal")
-        EndTextCommandSetBlipName(blip)
-    end
-
-    if DoesEntityExist(baitAnimal) then
-        TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-        createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal)
-        createDespawnThread(baitAnimal, was_llegal, coord)
-        print("debug: spwan success")
-    else
-        print("debug: spwan failed")
-    end
-end)
-
--- ============================
---      Spawning Ped Command
--- ============================
-RegisterNetEvent('keep-hunting:client:spawnanim')
-AddEventHandler('keep-hunting:client:spawnanim', function(model, was_llegal)
-    model = (tonumber(model) ~= nil and tonumber(model) or GetHashKey(model))
-    local playerPed = PlayerPedId()
-    local coords = GetEntityCoords(playerPed)
-    local forward = GetEntityForwardVector(playerPed)
-    local x, y, z = table.unpack(coords + forward * 1.0)
-
-    Citizen.CreateThread(function()
-        RequestModel(model)
-        while not HasModelLoaded(model) do
-            Citizen.Wait(1)
-        end
-        baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
-        -- ExplodePedHead(baitAnimal, GetHashKey("weapon_musket"))
-        createDespawnThread(baitAnimal, was_llegal)
-    end)
-end)
-
-RegisterNetEvent('keep-hunting:client:clearTask')
-AddEventHandler('keep-hunting:client:clearTask', function()
-    local playerPed = PlayerPedId()
-    ClearPedTasks(playerPed)
-end)
-
