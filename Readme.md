@@ -39,7 +39,8 @@ Config.Products = {
             amount = 10,
             info = {},
             type = 'weapon',
-            slot = 1
+            slot = 1,
+            requiresLicense = true
         },
         [2] = {
             name = 'shotgun_ammo',
@@ -47,7 +48,8 @@ Config.Products = {
             amount = 50,
             info = {},
             type = 'item',
-            slot = 2
+            slot = 2,
+            requiresLicense = true
         },
         [3] = {
             name = 'huntingbait',
@@ -71,18 +73,18 @@ Config.Products = {
 Config.Locations = {
     ["huntingshop"] = {
         ["label"] = "Hunting Shop",
-        ["coords"] = {
-            [1] = vector4(-679.82, 5838.92, 17.33, 217.45)
-        },
-        ["ped"] = {
-            ["model"] = 'ig_hunter'
-        },
+        ["type"] = "weapon",
+        ["coords"] = vector4(-679.47, 5834.49, 17.33, 127.62),
+        ["ped"] = 'ig_hunter',
+        ["scenario"] = "WORLD_HUMAN_COP_IDLES",
         ["radius"] = 1.5,
+        ["targetIcon"] = "fas fa-gun",
+        ["targetLabel"] = "Open Hunting Shop",
         ["products"] = Config.Products["huntingshop"],
         ["showblip"] = true,
         ["blipsprite"] = 626,
-        ["colour"] = 1
-    },
+        ["blipcolor"] = 1
+    }
 }
 ```
 
@@ -110,9 +112,6 @@ Config.Animals = {{
 
 - This is how chances of spawning work:
 
-<<<<<<< HEAD
-![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)
-=======
-![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/main/.github/img/chance.JPG)
+# ![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/Test/.github/img/chance.JPGm)
 
-> > > > > > > f53b9eab9f73adf011b9cc9f6ca32bff175cc25e
+![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/main/.github/img/chance.JPG)
