@@ -61,15 +61,15 @@ AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
                         disableMouse = true,
                         disableCombat = true
                     }, {}, {}, {}, function()
-                        ToggleSlaughterAnimation(false, 0)
-                        if AnimalLootMultiplier:read(entity) ~= nil and AnimalLootMultiplier:read(entity) ~= false then
-                            TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, AnimalLootMultiplier:read(entity))
-                        else
-                            -- defalut values for multipiler
-                            TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, 'defalut')
-                        end
-                        Citizen.Wait(100)
-                    end)
+                    ToggleSlaughterAnimation(false, 0)
+                    if AnimalLootMultiplier:read(entity) ~= nil and AnimalLootMultiplier:read(entity) ~= false then
+                        TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, AnimalLootMultiplier:read(entity))
+                    else
+                        -- defalut values for multipiler
+                        TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, 'defalut')
+                    end
+                    Citizen.Wait(100)
+                end)
             else
                 CoreName.Functions.Notify("You dont have knife.")
             end
@@ -260,23 +260,22 @@ function disablePlayerFiring()
 end
 
 local function blockShooting()
+    local playerId = PlayerId()
+    local PlyPedId = PlayerPedId()
     Citizen.CreateThread(function()
         while hasMusket do
             Citizen.Wait(1)
-            local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(PlayerId(-1))
+            local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(playerId)
             local PedType = GetPedType(targetPed)
-            local PlyPedId = GetPlayerPed(-1)
-
-            disablePlayerFiring()
 
             if aiming then
-                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and (PedType == 4 or PedType == 5) then
-                    DisablePlayerFiring(PlayerId(), true)
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and (PedType == 4 or PedType == 5 or PedType == 2 or PedType == 1) then
+                    DisablePlayerFiring(playerId, true)
                     disablePlayerFiring()
                 end
             else
                 if IsPedShooting(PlyPedId) then
-                    SetCurrentPedWeapon(PlayerPedId(), "weapon_unarmed", true)
+                    SetCurrentPedWeapon(PlyPedId, "weapon_unarmed", true)
                 else
                     hasMusket = false
                 end
@@ -292,7 +291,7 @@ if Config.ShootingProtection then
     end
     Citizen.CreateThread(function()
         while true do
-            Citizen.Wait(50)
+            Citizen.Wait(5)
             for key, weaponHash in pairs(hashTable) do
                 if hasMusket == false then
                     if GetSelectedPedWeapon(PlayerPedId()) == weaponHash then
@@ -306,3 +305,13 @@ if Config.ShootingProtection then
         end
     end)
 end
+
+exports['swkeep-tablet']:AddAppToList({
+    name = "hunting",
+    icon = "hunting.png",
+    lable = "hunting app",
+    to = "hunting",
+    resourceName = 'keep-hunting',
+    readEvent = 'keep-hunting:client:test',
+    writeEvent = 'keep-hunting:client:test2'
+})
