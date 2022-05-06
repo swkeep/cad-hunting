@@ -159,7 +159,7 @@ function createThreadAnimalSpawningTimer(coord, was_llegal)
             end
         end)
     else
-        CoreName.Functions.Notify("pls find a better location for you bait!")
+        CoreName.Functions.Notify("Find a better location to place your bait!")
     end
 end
 
@@ -182,7 +182,7 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, 
         SetBlipSprite(blip, spawnedAnimalsBlipsConfig.sprite) -- if you want the animals to have blips change the 0 to a different blip number
         SetBlipColour(blip, spawnedAnimalsBlipsConfig.color)
         BeginTextCommandSetBlipName("STRING")
-        AddTextComponentString("bait animal")
+        AddTextComponentString("Baited animal")
         EndTextCommandSetBlipName(blip)
     end
 
