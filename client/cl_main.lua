@@ -305,13 +305,3 @@ if Config.ShootingProtection then
         end
     end)
 end
-
-exports['swkeep-tablet']:AddAppToList({
-    name = "hunting",
-    icon = "hunting.png",
-    lable = "hunting app",
-    to = "hunting",
-    resourceName = 'keep-hunting',
-    readEvent = 'keep-hunting:client:test',
-    writeEvent = 'keep-hunting:client:test2'
-})
