@@ -119,6 +119,14 @@ AddEventHandler('keep-hunting:client:useBait', function()
     local inHuntingZone = isPedInHuntingZone()
     if inHuntingZone.inzone then
         if deployedBaitCooldown <= 0 then
+            if Config.HuntingHours.active == true then
+                local hunting_hour = check_hunting_hour()
+                if hunting_hour ~= nil and hunting_hour == false then
+                    CoreName.Functions.Notify("You cant hunt at this hour")
+                    return
+                end
+            end
+
             ClearPedTasks(plyPed)
             TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
             -- loadAnimDict('amb@medic@standing@kneel@base')
@@ -140,6 +148,32 @@ AddEventHandler('keep-hunting:client:useBait', function()
         CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
     end
 end)
+
+function check_hunting_hour()
+    local start = Config.HuntingHours.range.start
+    local ends = Config.HuntingHours.range.ends
+    local hour = exports['qb-weathersync'].getHour()
+    local huntingHour = false
+    if start > ends then
+        -- don't judge me okeay xd
+        if hour == start then
+            huntingHour = true
+        elseif hour == 0 then
+            huntingHour = true
+        elseif hour <= ends then
+            huntingHour = true
+        else
+            huntingHour = false
+        end
+    else
+        if start <= hour and ends >= hour then
+            huntingHour = true
+        else
+            huntingHour = false
+        end
+    end
+    return huntingHour
+end
 
 function createThreadAnimalSpawningTimer(coord, was_llegal)
     local outPosition = getSpawnLocation(coord)

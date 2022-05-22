@@ -20,6 +20,17 @@ Config.ShootingProtection = false
 Config.ProtectedWeapons = { 'weapon_musket' }
 -- End
 
+-- hunting hours
+-- make sure you did Optional installation!
+Config.HuntingHours = {
+    active = false,
+    range = {
+        start = 23,
+        ends = 7
+    }
+} --allowed rage
+--
+
 Config.BaitCooldown = 1000 * 30 -- 1000 per sec
 Config.SpawningTimer = 1000 * 10 -- script will wait until "SpawningTimer" time out then it will spwan animal
 
