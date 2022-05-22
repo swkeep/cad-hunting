@@ -158,7 +158,7 @@ end
 
 -- animals Smart Flee
 
-function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity)
+function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity, indicator)
     -- entity is not moveing detaction
     Citizen.CreateThread(function()
         local playerPed = PlayerPedId()
@@ -176,13 +176,15 @@ function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity)
                 Citizen.Wait(1500)
                 TaskStartScenarioInPlace(entity, "WORLD_DEER_GRAZING", 0, true)
                 Citizen.SetTimeout(Config.AnimalsEatingSpeed, function()
+                    deleteIndicator(indicator)
                     finished = true
                 end)
             end
             if #(entityCoord - playerCoord) < FleeView then
                 -- animal flee view
-                -- ClearPedTasks(entity)
-                --TaskSmartFleePed(entity, playerPed, 600.0, -1)
+                ClearPedTasks(entity)
+                TaskSmartFleePed(entity, playerPed, 600.0, -1)
+                deleteIndicator(indicator)
                 finished = true
             end
 
@@ -193,8 +195,18 @@ function createThreadAnimalTraveledDistanceToBaitTracker(baitCoord, entity)
         end
         if not IsPedDeadOrDying(entity) then
             TaskSmartFleePed(entity, playerPed, 600.0, -1)
+            deleteIndicator(indicator)
         end
     end)
+end
+
+function deleteIndicator(indicator)
+    if indicator == nil then
+        return
+    end
+    if DoesEntityExist(indicator) == 1 then
+        DeleteEntity(indicator)
+    end
 end
 
 --- check if animal can move toward bait
@@ -245,7 +257,7 @@ function getSpawnLocation(coord)
     return vector4(posX, posY, posZ, heading)
 end
 
-function createDespawnThread(baitAnimal, was_llegal, baitcoord)
+function createDespawnThread(baitAnimal, was_llegal, baitcoord, indicator)
     Citizen.CreateThread(function()
         local finished = false
         local range = Config.animalDespawnRange
@@ -275,6 +287,7 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
             end
             -- when the animal has taken the set distance from the player
             if distance >= range then
+                deleteIndicator(indicator)
                 SetModelAsNoLongerNeeded(baitAnimal)
                 SetPedAsNoLongerNeeded(baitAnimal) -- despawn when player no longer in the area
                 finished = true
@@ -289,7 +302,7 @@ function createDespawnThread(baitAnimal, was_llegal, baitcoord)
             local currentHealth = GetEntityHealth(baitAnimal)
             if currentHealth ~= tmpHealth then
                 local retval, outBone = GetPedLastDamageBone(baitAnimal)
-                print(currentHealth, outBone)
+                -- print(currentHealth, outBone)
                 AnimalLootMultiplier:new(baitAnimal, {
                     bone = outBone
                 })

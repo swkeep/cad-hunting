@@ -31,6 +31,11 @@ Config.HuntingHours = {
 } --allowed rage
 --
 
+Config.BaitIndicator = {
+    active = false,
+    model = 'prop_peanut_bowl_01'
+}
+
 Config.BaitCooldown = 1000 * 30 -- 1000 per sec
 Config.SpawningTimer = 1000 * 10 -- script will wait until "SpawningTimer" time out then it will spwan animal
 

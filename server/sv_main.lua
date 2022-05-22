@@ -183,13 +183,13 @@ AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
 end)
 
 RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn')
-AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, outPosition, was_llegal)
+AddEventHandler('keep-hunting:server:choiceWhichAnimalToSpawn', function(coord, outPosition, was_llegal, indicator)
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
     local C_animal = choiceAnimal(Animals, was_llegal)
 
     if C_animal ~= nil then
-        TriggerClientEvent('keep-hunting:client:spawnAnimal', source, coord, outPosition, C_animal, was_llegal)
+        TriggerClientEvent('keep-hunting:client:spawnAnimal', source, coord, outPosition, C_animal, was_llegal, indicator)
     end
 end)
 

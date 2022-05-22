@@ -139,7 +139,11 @@ AddEventHandler('keep-hunting:client:useBait', function()
                 disableCombat = true
             }, {}, {}, {}, function()
                 ClearPedTasks(plyPed)
-                createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal)
+                local indicator = nil
+                if Config.BaitIndicator.active == true then
+                    indicator = spawnBaitObject(Config.BaitIndicator.model, coord)
+                end
+                createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal, indicator)
             end)
         else
             CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
@@ -175,7 +179,7 @@ function check_hunting_hour()
     return huntingHour
 end
 
-function createThreadAnimalSpawningTimer(coord, was_llegal)
+function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
     local outPosition = getSpawnLocation(coord)
 
     if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
@@ -187,7 +191,7 @@ function createThreadAnimalSpawningTimer(coord, was_llegal)
             end
             if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
-                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal)
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal, indicator)
             else
                 CoreName.Functions.Notify("Failed to triger bait!")
             end
@@ -197,8 +201,21 @@ function createThreadAnimalSpawningTimer(coord, was_llegal)
     end
 end
 
+function spawnBaitObject(model, coord)
+    local entity = CreateObject(model, coord.x, coord.y, coord.z, 0, 0, 0)
+    while not DoesEntityExist(entity) do
+        Wait(10)
+    end
+    PlaceObjectOnGroundProperly(entity)
+    FreezeEntityPosition(
+        entity,
+        true
+    )
+    return entity
+end
+
 RegisterNetEvent('keep-hunting:client:spawnAnimal')
-AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal)
+AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal, indicator)
     if not HasModelLoaded(C_animal.hash) then
         RequestModel(C_animal.hash)
         Wait(10)
@@ -222,8 +239,8 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, 
 
     if DoesEntityExist(baitAnimal) then
         TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-        createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal)
-        createDespawnThread(baitAnimal, was_llegal, coord)
+        createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal, indicator)
+        createDespawnThread(baitAnimal, was_llegal, coord, indicator)
         print("debug: spwan success")
         putQbTargetOnEntity(baitAnimal)
     else
