@@ -267,6 +267,35 @@ end
 
 --- generate safe spawn location
 ---@param coord 'vector3'
+-- function getSpawnLocation(coord)
+--     local maxRadius = Config.maxSpawnDistance
+--     local minRadius = Config.minSpawnDistance
+
+--     local safeCoord, outPosition
+--     local finished = false
+--     local index = 0
+
+--     while finished == false and index <= 1000 do
+--         local angle = Config.spawnAngle
+--         local random
+--         for i = 1, 10, 1 do
+--             random = math.random(angle[1], angle[2])
+--         end
+--         posX = coord.x + (math.random(minRadius, maxRadius) * math.cos(random))
+--         posY = coord.y + (math.random(minRadius, maxRadius) * math.sin(random))
+
+--         Z = coord.z + 999.0
+--         heading = math.random(0, 359) + .0
+--         ground, posZ = GetGroundZFor_3dCoord(posX + .0, posY + .0, Z, true)
+
+--         -- if game engine thinks coord is good to spawn exit loop
+--         safeCoord, outPosition = GetSafeCoordForPed(posX, posY, posZ, false, 16)
+--         finished = safeCoord
+--         index = index + 1
+--     end
+--     return vector4(posX, posY, posZ, heading)
+-- end
+-- (BrianTU)
 function getSpawnLocation(coord)
     local maxRadius = Config.maxSpawnDistance
     local minRadius = Config.minSpawnDistance
@@ -275,7 +304,7 @@ function getSpawnLocation(coord)
     local finished = false
     local index = 0
 
-    while finished == false and index <= 1000 do
+    while finished == false and index <= 250 do
         local angle = Config.spawnAngle
         local random
         for i = 1, 10, 1 do
@@ -290,7 +319,16 @@ function getSpawnLocation(coord)
 
         -- if game engine thinks coord is good to spawn exit loop
         safeCoord, outPosition = GetSafeCoordForPed(posX, posY, posZ, false, 16)
-        finished = safeCoord
+        local _, closstRd, face = GetClosestVehicleNodeWithHeading(posX, posY, posZ, 1, 100, 2.5)
+        if safeCoord then
+            finished = safeCoord
+        elseif closstRd ~= nil then
+            finished = true
+            posX = closstRd.x
+            posY = closstRd.y
+            posZ = closstRd.z
+            heading = face
+        end
         index = index + 1
     end
     return vector4(posX, posY, posZ, heading)
