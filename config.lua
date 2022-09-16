@@ -5,7 +5,7 @@ Config.DEBUG = false -- make sure it's false
 -- Let players slaughter every animal without bait
 -- only animals spawned by baits give rewards
 -- note: in my tests if it's true you need to restart QB-target first and then keep-hunting afterward
-Config.SlughterEveryAnimal = true
+Config.SlughterEveryAnimal = false
 
 -- protection system againts players
 -- if hunters have this weapons they can't shoot players with it!

@@ -160,20 +160,22 @@ end
 
 function putQbTargetOnEntity(ped)
     exports['qb-target']:AddTargetEntity(ped, {
-        options = { {
-            icon = "fas fa-sack-dollar",
-            label = "slaughter",
-            canInteract = function(entity)
-                return IsEntityDead(entity)
-            end,
-            action = function(entity)
-                if IsEntityDead(entity) == false then
-                    return false
+        options = {
+            {
+                icon = "fas fa-sack-dollar",
+                label = "slaughter",
+                canInteract = function(entity)
+                    return IsEntityDead(entity)
+                end,
+                action = function(entity)
+                    if IsEntityDead(entity) == false then
+                        return false
+                    end
+                    TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
+                    return true
                 end
-                TriggerEvent('keep-hunting:client:slaughterAnimal', entity)
-                return true
-            end
-        } },
+            }
+        },
         distance = 1.5
     })
 end

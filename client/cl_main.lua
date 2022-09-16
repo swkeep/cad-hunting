@@ -243,6 +243,7 @@ RegisterNetEvent('keep-hunting:client:spawnanim', function(model, was_llegal)
         load_model(model)
         baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
         createDespawnThread(baitAnimal, was_llegal)
+        putQbTargetOnEntity(baitAnimal)
     end)
 end)
 
