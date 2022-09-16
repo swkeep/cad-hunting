@@ -88,54 +88,6 @@ Config.Locations = {
 }
 ```
 
-# Optional feature
-
-## Hunting Hours
-
-- To activate this feature, you must make the following changes
-- open qb-weathersync / client / client.lua then try to find a code similar to the one below
-- Then add the missing line thas has this marker "<------------- ADD THIS"
-- Then turn this feature on in config file
-
-```lua
-local hunting_h = 0 -- <------------- ADD THIS
-CreateThread(function()
-    local hour = 0
-    local minute = 0
-    local second = 0
-    while true do
-        if not disable then
-            Wait(0)
-            local newBaseTime = baseTime
-            if GetGameTimer() - 22 > timer then
-                second = second + 1
-                timer = GetGameTimer()
-            end
-            if freezeTime then
-                timeOffset = timeOffset + baseTime - newBaseTime
-                second = 0
-            end
-            baseTime = newBaseTime
-            hour = math.floor(((baseTime + timeOffset) / 60) % 24)
-            if minute ~= math.floor((baseTime + timeOffset) % 60) then
-                minute = math.floor((baseTime + timeOffset) % 60)
-                second = 0
-            end
-            hunting_h = hour -- <------------- ADD THIS
-            NetworkOverrideClockTime(hour, minute, second)
-        else
-            Wait(1000)
-        end
-    end
-end)
-
-function getHour() -- <------------- ADD THIS
-    return hunting_h -- <------------- ADD THIS
-end -- <------------- ADD THIS
-
-exports('getHour', getHour) -- <------------- ADD THIS
-```
-
 ## How spawning chance works:
 
 ![chance](https://raw.githubusercontent.com/swkeep/keep-hunting/main/.github/img/chance.JPG)

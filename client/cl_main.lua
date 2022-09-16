@@ -63,7 +63,8 @@ AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
                     }, {}, {}, {}, function()
                     ToggleSlaughterAnimation(false, 0)
                     if AnimalLootMultiplier:read(entity) ~= nil and AnimalLootMultiplier:read(entity) ~= false then
-                        TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, AnimalLootMultiplier:read(entity))
+                        TriggerServerEvent('keep-hunting:server:AddItem', animal, entity,
+                            AnimalLootMultiplier:read(entity))
                     else
                         -- defalut values for multipiler
                         TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, 'defalut')
@@ -111,52 +112,11 @@ end
 -- ============================
 --      Bait
 -- ============================
-
-RegisterNetEvent('keep-hunting:client:useBait')
-AddEventHandler('keep-hunting:client:useBait', function()
-    local plyPed = PlayerPedId()
-    local coord = GetEntityCoords(plyPed)
-    local inHuntingZone = isPedInHuntingZone()
-    if inHuntingZone.inzone then
-        if deployedBaitCooldown <= 0 then
-            if Config.HuntingHours.active == true then
-                local hunting_hour = check_hunting_hour()
-                if hunting_hour ~= nil and hunting_hour == false then
-                    CoreName.Functions.Notify("You cant hunt at this hour")
-                    return
-                end
-            end
-
-            ClearPedTasks(plyPed)
-            TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
-            -- loadAnimDict('amb@medic@standing@kneel@base')
-            -- TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
-            -- false)
-            CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
-                disableMovement = true,
-                disableCarMovement = false,
-                disableMouse = false,
-                disableCombat = true
-            }, {}, {}, {}, function()
-                ClearPedTasks(plyPed)
-                local indicator = nil
-                if Config.BaitIndicator.active == true then
-                    indicator = spawnBaitObject(Config.BaitIndicator.model, coord)
-                end
-                createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal, indicator)
-            end)
-        else
-            CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
-        end
-    else
-        CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
-    end
-end)
-
-function check_hunting_hour()
+local function check_hunting_hour()
     local start = Config.HuntingHours.range.start
     local ends = Config.HuntingHours.range.ends
-    local hour = exports['qb-weathersync'].getHour()
+    local hour = GetClockHours()
+    local minute = GetClockMinutes()
     local huntingHour = false
     if start > ends then
         -- don't judge me okeay xd
@@ -179,7 +139,7 @@ function check_hunting_hour()
     return huntingHour
 end
 
-function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
+local function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
     local outPosition = getSpawnLocation(coord)
 
     if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
@@ -191,7 +151,8 @@ function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
             end
             if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
-                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal, indicator)
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal,
+                    indicator)
             else
                 CoreName.Functions.Notify("Failed to triger bait!")
             end
@@ -201,18 +162,61 @@ function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
     end
 end
 
-function spawnBaitObject(model, coord)
-    local entity = CreateObject(model, coord.x, coord.y, coord.z, 0, 0, 0)
-    while not DoesEntityExist(entity) do
-        Wait(10)
+RegisterNetEvent('keep-hunting:client:useBait')
+AddEventHandler('keep-hunting:client:useBait', function()
+    local function spawnBaitObject(model, coord)
+        local entity = CreateObject(model, coord.x, coord.y, coord.z, 0, 0, 0)
+        while not DoesEntityExist(entity) do
+            Wait(10)
+        end
+        PlaceObjectOnGroundProperly(entity)
+        FreezeEntityPosition(
+            entity,
+            true
+        )
+        return entity
     end
-    PlaceObjectOnGroundProperly(entity)
-    FreezeEntityPosition(
-        entity,
-        true
-    )
-    return entity
-end
+
+    local plyPed = PlayerPedId()
+    local coord = GetEntityCoords(plyPed)
+    local inHuntingZone = isPedInHuntingZone()
+    if not inHuntingZone.inzone then
+        CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
+        return
+    end
+
+    if not (deployedBaitCooldown <= 0) then
+        CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
+        return
+    end
+
+    if Config.HuntingHours.active == true then
+        local hunting_hour = check_hunting_hour()
+        if hunting_hour ~= nil and hunting_hour == false then
+            CoreName.Functions.Notify("You cant hunt at this hour")
+            return
+        end
+    end
+
+    ClearPedTasks(plyPed)
+    TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
+    -- loadAnimDict('amb@medic@standing@kneel@base')
+    -- TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
+    -- false)
+    CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
+        disableMovement = true,
+        disableCarMovement = false,
+        disableMouse = false,
+        disableCombat = true
+    }, {}, {}, {}, function()
+        ClearPedTasks(plyPed)
+        local indicator = nil
+        if Config.BaitIndicator.active == true then
+            indicator = spawnBaitObject(Config.BaitIndicator.model, coord)
+        end
+        createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal, indicator)
+    end)
+end)
 
 RegisterNetEvent('keep-hunting:client:spawnAnimal')
 AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal, indicator)
@@ -320,7 +324,8 @@ local function blockShooting()
             local PedType = GetPedType(targetPed)
 
             if aiming then
-                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and (PedType == 4 or PedType == 5 or PedType == 2 or PedType == 1) then
+                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and
+                    (PedType == 4 or PedType == 5 or PedType == 2 or PedType == 1) then
                     DisablePlayerFiring(playerId, true)
                     disablePlayerFiring()
                 end

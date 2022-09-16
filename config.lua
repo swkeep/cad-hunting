@@ -21,7 +21,6 @@ Config.ProtectedWeapons = { 'weapon_musket' }
 -- End
 
 -- hunting hours
--- make sure you did Optional installation!
 Config.HuntingHours = {
     active = false,
     range = {
