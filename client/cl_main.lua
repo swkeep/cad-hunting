@@ -72,13 +72,12 @@ AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
         }, {}, {}, {}, function()
         ToggleSlaughterAnimation(false, 0)
         if AnimalLootMultiplier:read(entity) ~= nil and AnimalLootMultiplier:read(entity) ~= false then
-            TriggerServerEvent('keep-hunting:server:AddItem', animal, entity,
+            TriggerServerEvent('keep-hunting:server:AddItem', animal, NetworkGetNetworkIdFromEntity(entity),
                 AnimalLootMultiplier:read(entity))
         else
             -- defalut values for multipiler
-            TriggerServerEvent('keep-hunting:server:AddItem', animal, entity, 'defalut')
+            TriggerServerEvent('keep-hunting:server:AddItem', animal, NetworkGetNetworkIdFromEntity(entity), 'default')
         end
-        Citizen.Wait(100)
     end)
 end)
 

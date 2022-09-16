@@ -1,35 +1,20 @@
 local CoreName = exports['qb-core']:GetCoreObject()
-local TableSize = Config.sv_maxTableSize
-local garbageCollection_tm = Config.sv_dataClearnigTimer
 local Animals = Config.Animals
 
 -- ============================
 --       EVENTS
 -- ============================
-local animalsEnity = {} -- prevent players to slaughter twice
 
-RegisterServerEvent("keep-hunting:server:AddItem")
-AddEventHandler("keep-hunting:server:AddItem", function(data, entity, multiplier)
-    local _source = source
-    local Player = CoreName.Functions.GetPlayer(_source)
+RegisterServerEvent("keep-hunting:server:AddItem", function(data, netId, multiplier)
+    local src = source
+    local Player = CoreName.Functions.GetPlayer(src)
+    if not Player then return end
 
     for _, v in pairs(Config.Animals) do
         if v.model == data.model then
-            -- check if another player already slaughtered or not
-            if animalsEnity ~= nil then
-                if isAleadySlaughtered(entity) == false then
-                    setHash(entity) -- prevent player to slaughter twice
-                    choiceRewardsForPlayer(v.Loots, _source, Player, multiplier)
-                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
-                else
-                    TriggerClientEvent('QBCore:Notify', _source, "Someone already slaughtered this animal!")
-                    TriggerClientEvent('keep-hunting:client:ForceRemoveAnimalEntity', -1, entity)
-                end
-            else
-                -- init animalsEnity table
-                setHash(entity) -- prevent player to slaughter twice
-                choiceRewardsForPlayer(v.Loots, _source, Player, multiplier)
-            end
+            choiceRewardsForPlayer(v.Loots, src, Player, multiplier)
+            DeleteEntity(NetworkGetEntityFromNetworkId(netId))
+            return
         end
     end
 end)
@@ -192,7 +177,6 @@ RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn',
 
 function choiceAnimal(Rarities, was_llegal)
     local temp = {}
-    local res
     for key, value in pairs(Rarities) do
         if not was_llegal then
             table.insert(temp, value.spwanRarity[2])
@@ -226,44 +210,3 @@ CoreName.Commands.Add('addBait', 'add bait to player inventory (Admin Only)', {}
     Player.Functions.AddItem("huntingbait", 10)
     TriggerClientEvent("inventory:client:ItemBox", src, CoreName.Shared.Items["huntingbait"], "add")
 end, 'admin')
-
--- ============================
---      Server garbage collection
--- ============================
-
-Citizen.CreateThread(function()
-    while true do
-        Citizen.Wait(garbageCollection_tm)
-        garbageCollection()
-    end
-end)
-
--- ============================
---      Functions
--- ============================
-function isAleadySlaughtered(entity)
-    local isAleadySlaughtered = false
-
-    for i = #animalsEnity, 1, -1 do
-        local value = animalsEnity[i]
-        if value == entity then
-            isAleadySlaughtered = true
-            break
-        end
-    end
-    return isAleadySlaughtered
-end
-
-function setHash(entity)
-    table.insert(animalsEnity, entity)
-end
-
-function garbageCollection()
-    local count = #animalsEnity
-    if count > TableSize then
-        print("clearing Hunted Animals data")
-        for i = 0, count do
-            animalsEnity[i] = nil
-        end
-    end
-end

@@ -1,13 +1,6 @@
 Config = Config or {}
 
 Config.DEBUG = false -- make sure it's false
--- ============================
---       Server Config
--- ============================
-Config.sv_dataClearnigTimer = 1000 * 60 * 60 -- 1000 per sec
-Config.sv_maxTableSize = 5000 -- saved entites in table
-
--- End
 
 -- Let players slaughter every animal without bait
 -- only animals spawned by baits give rewards
