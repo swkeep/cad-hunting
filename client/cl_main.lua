@@ -3,8 +3,11 @@
 -- ============================
 local CoreName = exports['qb-core']:GetCoreObject()
 
-local inzone = false -- hunting zone
+local started = false
 local Zones = {} -- hunting zone
+local in_zone = false -- hunting zone
+local current_zone = {}
+local zone_type
 
 -- bait
 local baitCooldown = Config.BaitCooldown
@@ -17,20 +20,34 @@ local startSpawningTimer = 0
 local spawnedAnimalsBlips = Config.spawnedAnimalsBlips
 local spawnedAnimalsBlipsConfig = Config.AnimalBlip
 
-local started = false
 
 -- ============================
 --      FUNCTIONS
 -- ============================
-
--- add dog companion
-
 -- add CircleZone for hunting zones
 function AddCircleZone(name, llegal, center, radius, options)
     Zones[name] = CircleZone:Create(center, radius, options)
-    table.insert(Zones[name], {
-        llegal = llegal
-    })
+    Zones[name]:onPlayerInOut(function(isPointInside)
+        if isPointInside then
+            in_zone = true
+            current_zone = Zones[name]
+            zone_type = llegal
+        else
+            in_zone = false
+            current_zone = nil
+            zone_type = nil
+        end
+    end)
+end
+
+local function load_model(model)
+    if not HasModelLoaded(model) then
+        RequestModel(model)
+        Wait(10)
+    end
+    while not HasModelLoaded(model) do
+        Wait(10)
+    end
 end
 
 AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
@@ -76,27 +93,6 @@ AddEventHandler('keep-hunting:client:ForceRemoveAnimalEntity', function(entity)
     AnimalLootMultiplier[entity] = nil
 end)
 
-function isPedInHuntingZone(type)
-    local plyPed = PlayerPedId()
-    local coord = GetEntityCoords(plyPed)
-    local legl
-
-    for _, zone in pairs(Zones) do
-        if zone:isPointInside(coord) then
-            return {
-                inzone = true,
-                llegal = zone[1].llegal
-            }
-        else
-            legl = zone[1].llegal
-        end
-    end
-    return {
-        inzone = false,
-        llegal = legl
-    }
-end
-
 -- ============================
 --      Bait
 -- ============================
@@ -127,7 +123,7 @@ local function check_hunting_hour()
     return huntingHour
 end
 
-local function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
+local function createThreadAnimalSpawningTimer(coord, indicator)
     local outPosition = getSpawnLocation(coord)
 
     if outPosition.x ~= 0 and outPosition.y ~= 0 and outPosition.z ~= 0 then
@@ -139,7 +135,7 @@ local function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
             end
             if startSpawningTimer == 0 then
                 createThreadBaitCooldown()
-                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, was_llegal,
+                TriggerServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn', coord, outPosition, zone_type,
                     indicator)
             else
                 CoreName.Functions.Notify("Failed to triger bait!")
@@ -150,8 +146,7 @@ local function createThreadAnimalSpawningTimer(coord, was_llegal, indicator)
     end
 end
 
-RegisterNetEvent('keep-hunting:client:useBait')
-AddEventHandler('keep-hunting:client:useBait', function()
+RegisterNetEvent('keep-hunting:client:useBait', function()
     local function spawnBaitObject(model, coord)
         local entity = CreateObject(model, coord.x, coord.y, coord.z, 0, 0, 0)
         while not DoesEntityExist(entity) do
@@ -167,14 +162,18 @@ AddEventHandler('keep-hunting:client:useBait', function()
 
     local plyPed = PlayerPedId()
     local coord = GetEntityCoords(plyPed)
-    local inHuntingZone = isPedInHuntingZone()
-    if not inHuntingZone.inzone then
+    if not in_zone or not current_zone then
         CoreName.Functions.Notify("You must be in hunting area to deploy your bait!")
         return
     end
 
     if not (deployedBaitCooldown <= 0) then
         CoreName.Functions.Notify("Baiting is on cooldown! Remaining: " .. (deployedBaitCooldown / 1000) .. "sec")
+        return
+    end
+
+    if zone_type == nil then
+        CoreName.Functions.Notify("Could not get zone llegal type!", 'error')
         return
     end
 
@@ -199,19 +198,12 @@ AddEventHandler('keep-hunting:client:useBait', function()
         if Config.BaitIndicator.active == true then
             indicator = spawnBaitObject(Config.BaitIndicator.model, coord)
         end
-        createThreadAnimalSpawningTimer(coord, inHuntingZone.llegal, indicator)
+        createThreadAnimalSpawningTimer(coord, indicator)
     end)
 end)
 
-RegisterNetEvent('keep-hunting:client:spawnAnimal')
-AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal, indicator)
-    if not HasModelLoaded(C_animal.hash) then
-        RequestModel(C_animal.hash)
-        Wait(10)
-    end
-    while not HasModelLoaded(C_animal.hash) do
-        Wait(10)
-    end
+RegisterNetEvent('keep-hunting:client:spawnAnimal', function(coord, outPosition, C_animal, was_llegal, indicator)
+    load_model(C_animal.hash)
     local baitAnimal = CreatePed(28, C_animal.hash, outPosition.x, outPosition.y, outPosition.z, outPosition.w, true,
         true)
     SetEntityAsMissionEntity(baitAnimal, true, true)
@@ -226,23 +218,23 @@ AddEventHandler('keep-hunting:client:spawnAnimal', function(coord, outPosition, 
         EndTextCommandSetBlipName(blip)
     end
 
-    if DoesEntityExist(baitAnimal) then
-        TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
-        createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal, indicator)
-        createDespawnThread(baitAnimal, was_llegal, coord, indicator)
-        print("debug: spwan success")
-        putQbTargetOnEntity(baitAnimal)
-    else
+    if not DoesEntityExist(baitAnimal) then
         print("debug: spwan failed")
+        return
     end
+
+    TriggerServerEvent('keep-hunting:server:removeBaitFromPlayerInventory')
+    createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal, indicator)
+    createDespawnThread(baitAnimal, was_llegal, coord, indicator)
+    putQbTargetOnEntity(baitAnimal)
+    print("debug: spwan success")
 end)
 
 -- ============================
 --      Spawning Ped Command
 -- ============================
 
-RegisterNetEvent('keep-hunting:client:spawnanim')
-AddEventHandler('keep-hunting:client:spawnanim', function(model, was_llegal)
+RegisterNetEvent('keep-hunting:client:spawnanim', function(model, was_llegal)
     model = (tonumber(model) ~= nil and tonumber(model) or GetHashKey(model))
     local playerPed = PlayerPedId()
     local coords = GetEntityCoords(playerPed)
@@ -250,10 +242,7 @@ AddEventHandler('keep-hunting:client:spawnanim', function(model, was_llegal)
     local x, y, z = table.unpack(coords + forward * 1.0)
 
     Citizen.CreateThread(function()
-        RequestModel(model)
-        while not HasModelLoaded(model) do
-            Citizen.Wait(1)
-        end
+        load_model(model)
         baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
         createDespawnThread(baitAnimal, was_llegal)
     end)

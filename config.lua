@@ -142,32 +142,37 @@ Config.Animals = { {
     Loots = { { "meatbird", 100 }, { "plastic", 50 } }
 } }
 
-Config.HuntingArea = { {
-    name = "llegal hunting Area",
-    coord = vector3(-840.6, 4183.3, 215.29),
-    radius = 1000.0,
-    llegal = true,
-    showBlip = true
-}, {
-    name = "illlegal hunting Area",
-    coord = vector3(870.01, 5158.01, 452.54),
-    radius = 500.0,
-    llegal = false,
-    showBlip = true
-} }
-
-Config.SellSpots = { {
-    BlipsCoords = vector3(570.34, 2796.46, 42.01),
-    name = 'sell hunting stuff!',
-    showBlip = true,
-    SellerNpc = {
-        model = 'csb_chef',
-        coords = vector4(570.34, 2796.46, 42.01, 294.27),
-        minusOne = true,
-        freeze = true,
-        invincible = true,
-        blockevents = true,
-        flag = 1,
-        currentpednumber = 0
+Config.HuntingArea = {
+    {
+        name = "llegal hunting Area",
+        coord = vector3(-840.6, 4183.3, 215.29),
+        radius = 1000.0,
+        llegal = true,
+        showBlip = true
+    },
+    {
+        name = "illlegal hunting Area",
+        coord = vector3(870.01, 5158.01, 452.54),
+        radius = 500.0,
+        llegal = false,
+        showBlip = true
     }
-} }
+}
+
+Config.SellSpots = {
+    [1] = {
+        BlipsCoords = vector3(570.34, 2796.46, 42.01),
+        name = 'sell hunting stuff!',
+        showBlip = true,
+        SellerNpc = {
+            model = 'csb_chef',
+            coords = vector4(570.34, 2796.46, 42.01, 294.27),
+            minusOne = true,
+            freeze = true,
+            invincible = true,
+            blockevents = true,
+            flag = 1,
+            currentpednumber = 0
+        }
+    }
+}
