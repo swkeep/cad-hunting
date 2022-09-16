@@ -17,6 +17,8 @@ local startSpawningTimer = 0
 local spawnedAnimalsBlips = Config.spawnedAnimalsBlips
 local spawnedAnimalsBlipsConfig = Config.AnimalBlip
 
+local started = false
+
 -- ============================
 --      FUNCTIONS
 -- ============================
@@ -30,20 +32,6 @@ function AddCircleZone(name, llegal, center, radius, options)
         llegal = llegal
     })
 end
-
-function initBlips()
-    initSellspotsQbTargets(Config.SellSpots)
-    createCustomBlips(Config.SellSpots)
-    createCustomBlips(Config.HuntingArea)
-end
-
-Citizen.CreateThread(function()
-    Wait(7)
-    initBlips()
-    if Config.SlughterEveryAnimal == true then
-        putQbTargetAllOnAnimals()
-    end
-end)
 
 AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
     local model = GetEntityModel(entity)
@@ -200,9 +188,6 @@ AddEventHandler('keep-hunting:client:useBait', function()
 
     ClearPedTasks(plyPed)
     TaskStartScenarioInPlace(plyPed, "WORLD_HUMAN_GARDENER_PLANT", 0, true)
-    -- loadAnimDict('amb@medic@standing@kneel@base')
-    -- TaskPlayAnim(plyPed, "amb@medic@standing@kneel@base", "base", 8.0, -8.0, -1, 1, 0, false, false,
-    -- false)
     CoreName.Functions.Progressbar("harv_anim", "Placing Bait", Config.BaitPlacementSpeed, false, false, {
         disableMovement = true,
         disableCarMovement = false,
@@ -270,7 +255,6 @@ AddEventHandler('keep-hunting:client:spawnanim', function(model, was_llegal)
             Citizen.Wait(1)
         end
         baitAnimal = CreatePed(5, model, x, y, z, 0.0, true, false)
-        -- ExplodePedHead(baitAnimal, GetHashKey("weapon_musket"))
         createDespawnThread(baitAnimal, was_llegal)
     end)
 end)
@@ -295,52 +279,51 @@ function createThreadBaitCooldown()
 end
 
 -- Shooting protection system
+if Config.ShootingProtection then
+    local hasMusket = false
 
-local hasMusket = false
+    function disablePlayerFiring()
+        DisableControlAction(0, 24) -- INPUT_ATTACK
+        DisableControlAction(0, 69) -- INPUT_VEH_ATTACK
+        DisableControlAction(0, 70) -- INPUT_VEH_ATTACK2
+        DisableControlAction(0, 92) -- INPUT_VEH_PASSENGER_ATTACK
+        DisableControlAction(0, 114) -- INPUT_VEH_FLY_ATTACK
+        DisableControlAction(0, 257) -- INPUT_ATTACK2
+        DisableControlAction(0, 331) -- INPUT_VEH_FLY_ATTACK2
 
-function disablePlayerFiring()
-    DisableControlAction(0, 24) -- INPUT_ATTACK
-    DisableControlAction(0, 69) -- INPUT_VEH_ATTACK
-    DisableControlAction(0, 70) -- INPUT_VEH_ATTACK2
-    DisableControlAction(0, 92) -- INPUT_VEH_PASSENGER_ATTACK
-    DisableControlAction(0, 114) -- INPUT_VEH_FLY_ATTACK
-    DisableControlAction(0, 257) -- INPUT_ATTACK2
-    DisableControlAction(0, 331) -- INPUT_VEH_FLY_ATTACK2
+        DisableControlAction(0, 282) -- INPUT_VEH_FLY_ATTACK2
+        DisableControlAction(0, 24, true)
+        DisableControlAction(0, 47, true)
+        DisableControlAction(0, 58, true)
+        DisablePlayerFiring(ped, true)
+    end
 
-    DisableControlAction(0, 282) -- INPUT_VEH_FLY_ATTACK2
-    DisableControlAction(0, 24, true)
-    DisableControlAction(0, 47, true)
-    DisableControlAction(0, 58, true)
-    DisablePlayerFiring(ped, true)
-end
+    local function blockShooting()
+        local playerId = PlayerId()
+        local PlyPedId = PlayerPedId()
+        Citizen.CreateThread(function()
+            while hasMusket do
+                Citizen.Wait(1)
+                local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(playerId)
+                local PedType = GetPedType(targetPed)
 
-local function blockShooting()
-    local playerId = PlayerId()
-    local PlyPedId = PlayerPedId()
-    Citizen.CreateThread(function()
-        while hasMusket do
-            Citizen.Wait(1)
-            local aiming, targetPed = GetEntityPlayerIsFreeAimingAt(playerId)
-            local PedType = GetPedType(targetPed)
-
-            if aiming then
-                if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and
-                    (PedType == 4 or PedType == 5 or PedType == 2 or PedType == 1) then
-                    DisablePlayerFiring(playerId, true)
-                    disablePlayerFiring()
-                end
-            else
-                if IsPedShooting(PlyPedId) then
-                    SetCurrentPedWeapon(PlyPedId, "weapon_unarmed", true)
+                if aiming then
+                    if DoesEntityExist(targetPed) and IsEntityAPed(targetPed) and
+                        (PedType == 4 or PedType == 5 or PedType == 2 or PedType == 1) then
+                        DisablePlayerFiring(playerId, true)
+                        disablePlayerFiring()
+                    end
                 else
-                    hasMusket = false
+                    if IsPedShooting(PlyPedId) then
+                        SetCurrentPedWeapon(PlyPedId, "weapon_unarmed", true)
+                    else
+                        hasMusket = false
+                    end
                 end
             end
-        end
-    end)
-end
+        end)
+    end
 
-if Config.ShootingProtection then
     local hashTable = {}
     for key, weapon in pairs(Config.ProtectedWeapons) do
         table.insert(hashTable, GetHashKey(weapon))
@@ -361,3 +344,30 @@ if Config.ShootingProtection then
         end
     end)
 end
+
+local function start()
+    if started then return end
+    started = true
+    Citizen.CreateThread(function()
+        initSellspotsQbTargets()
+        createCustomBlips(Config.SellSpots)
+        createCustomBlips(Config.HuntingArea)
+        if Config.SlughterEveryAnimal == true then
+            putQbTargetAllOnAnimals()
+        end
+    end)
+end
+
+RegisterNetEvent('QBCore:Client:OnPlayerLoaded', function()
+    start()
+end)
+
+AddEventHandler('onResourceStart', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then return end
+    start()
+end)
+
+AddEventHandler('onResourceStop', function(resourceName)
+    if (GetCurrentResourceName() ~= resourceName) then return end
+
+end)

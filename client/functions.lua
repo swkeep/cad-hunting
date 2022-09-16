@@ -75,22 +75,61 @@ function createCustomBlips(data)
 end
 
 -- init qb-target for selling spots
-function initSellspotsQbTargets(sellspot)
-    for _, v in pairs(sellspot) do
+function initSellspotsQbTargets()
+
+    local function spawn_ped(data)
+        RequestModel(data.model)
+        while not HasModelLoaded(data.model) do
+            Wait(0)
+        end
+
+        if type(data.model) == 'string' then data.model = GetHashKey(data.model) end
+
+        local ped = CreatePed(1, data.model, data.coords, false, true)
+
+        if data.freeze then FreezeEntityPosition(ped, true) end
+        if data.invincible then SetEntityInvincible(ped, true) end
+        if data.blockevents then SetBlockingOfNonTemporaryEvents(ped, true) end
+
+        if data.scenario then
+            SetPedCanPlayAmbientAnims(ped, true)
+            TaskStartScenarioInPlace(ped, data.scenario, 0, true)
+        end
+        return ped
+    end
+
+    for _, spot in pairs(Config.SellSpots) do
         -- spwan seller npcs
-        exports['qb-target']:SpawnPed({
-            [_] = v.SellerNpc
+        local c = vector3(spot.SellerNpc.coords.x, spot.SellerNpc.coords.y, spot.SellerNpc.coords.z - 1.0)
+
+        local ped = spawn_ped({
+            model = spot.SellerNpc.model,
+            coords = vector4(c.x, c.y, c.z, spot.SellerNpc.coords.w),
+            scenario = 'WORLD_HUMAN_CLIPBOARD',
+            flag = 1,
+            freeze = true,
+            invincible = true,
+            blockevents = true,
         })
 
         -- init qb-target for sellers
-        exports['qb-target']:AddTargetModel(v.SellerNpc.model, {
-            options = { {
-                event = "keep-hunting:client:sellREQ",
-                icon = "fas fa-sack-dollar",
-                label = "Sell All"
-            } },
-            distance = 2.5
-        })
+        exports['qb-target']:AddBoxZone("sell_spot" .. _, c, 0.5, 0.5, {
+            name = "sell_spot" .. _,
+            heading = spot.SellerNpc.coords.w,
+            minZ = c.z,
+            maxZ = c.z + 1.8,
+        },
+            {
+                options = {
+                    {
+                        event = "keep-hunting:client:sellREQ",
+                        icon = "fas fa-sack-dollar",
+                        label = "Sell All"
+                    }
+                },
+                distance = 1.5
+            }
+        )
     end
 end
 
