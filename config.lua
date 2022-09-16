@@ -99,12 +99,12 @@ Config.Animals = { {
     -- IMPORTANT: script will skip duplicate loots and only use one of them (first one)
     -- script will skip other prices and only uses the first seen value.
     -- IMPORTANT: if you leave the price with nil value players can't sell those items to Vendor.
-    Loots = { { "meatdeer", 100, 150 }, { "plastic", 50 } }
+    Loots = { { "meatdeer", 100, 150 }, { "plastic", 50, 25 } }
 }, {
     model = "a_c_pig",
     spwanRarity = { 20, 0 },
     hash = -1323586730,
-    Loots = { { "meatpig", 100, 150 }, { "plastic", 50 } }
+    Loots = { { "meatpig", 100, 150 }, { "plastic" } }
 }, {
     model = "a_c_boar",
     spwanRarity = { 30, 25 },

@@ -136,41 +136,40 @@ end
 -- ============================
 --   SELLING
 -- ============================
-RegisterServerEvent('keep-hunting:server:sellmeat')
-AddEventHandler('keep-hunting:server:sellmeat', function()
+local function is_sellable(item)
+    for _, value in pairs(Config.Animals) do
+        for _, loot in ipairs(value.Loots) do
+            if item.amount ~= 0 and loot[1] == item.name then
+                return loot
+            end
+        end
+    end
+    return false
+end
+
+RegisterServerEvent('keep-hunting:server:sellmeat', function()
     local src = source
     local Player = CoreName.Functions.GetPlayer(src)
     local price = 0
 
-    if Player ~= nil then
-        if Player.PlayerData.items ~= nil and next(Player.PlayerData.items) ~= nil then
-            for k, v in pairs(Player.PlayerData.items) do
-                if Player.PlayerData.items[k] ~= nil then
-                    for key, value in pairs(Config.Animals) do
-                        for key, value in pairs(value["Loots"]) do
-                            if value[1] == Player.PlayerData.items[k].name and Player.PlayerData.items[k].amount ~= 0 then
-                                if value[3] ~= nil then
-                                    price = price + (value[3] * Player.PlayerData.items[k].amount)
-                                    Player.Functions.RemoveItem(Player.PlayerData.items[k].name,
-                                        Player.PlayerData.items[k].amount, k)
-                                end
-                            end
-                        end
-                    end
-
-                end
-            end
-            if price == 0 then
-                TriggerClientEvent('QBCore:Notify', src, "You didn't have any sellable items")
-            else
-                Player.Functions.AddMoney("cash", price, "sold-items-hunting")
-                TriggerClientEvent('QBCore:Notify', src, "You have sold your items and recieved $" .. price)
-            end
-        else
-            TriggerClientEvent('QBCore:Notify', src, "You don't have items")
+    if not Player then return end
+    if not Player.PlayerData.items then
+        TriggerClientEvent('QBCore:Notify', src, "You don't have items")
+        return
+    end
+    for k, item in pairs(Player.PlayerData.items) do
+        local _is_sellable = is_sellable(item)
+        if _is_sellable and _is_sellable[3] then
+            price = price + (_is_sellable[3] * item.amount)
+            Player.Functions.RemoveItem(item.name, item.amount, k)
         end
     end
-    Wait(10)
+    if price == 0 then
+        TriggerClientEvent('QBCore:Notify', src, "You didn't have any sellable items")
+    else
+        Player.Functions.AddMoney("cash", price, "sold-items-hunting")
+        TriggerClientEvent('QBCore:Notify', src, "You have sold your items and recieved $" .. price)
+    end
 end)
 
 CoreName.Functions.CreateUseableItem("huntingbait", function(source, item)
@@ -184,15 +183,11 @@ AddEventHandler('keep-hunting:server:removeBaitFromPlayerInventory', function()
 end)
 
 RegisterServerEvent('keep-hunting:server:choiceWhichAnimalToSpawn',
-    function(coord, outPosition, was_llegal, indicator)
+    function(coord, outPosition, is_llegal, indicator)
         local src = source
-        local Player = CoreName.Functions.GetPlayer(src)
-        local C_animal = choiceAnimal(Animals, was_llegal)
-
-        if C_animal ~= nil then
-            TriggerClientEvent('keep-hunting:client:spawnAnimal', source, coord, outPosition, C_animal, was_llegal,
-                indicator)
-        end
+        local C_animal = choiceAnimal(Animals, is_llegal)
+        if not C_animal then return end
+        TriggerClientEvent('keep-hunting:client:spawnAnimal', src, coord, outPosition, C_animal, is_llegal, indicator)
     end)
 
 function choiceAnimal(Rarities, was_llegal)
