@@ -337,7 +337,7 @@ local function start()
     if started then return end
     started = true
     Citizen.CreateThread(function()
-        initSellspotsQbTargets()
+        spawn_seller_npc()
         createCustomBlips(Config.SellSpots)
         createCustomBlips(Config.HuntingArea)
         if Config.SlughterEveryAnimal == true then

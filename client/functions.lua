@@ -75,7 +75,7 @@ function createCustomBlips(data)
 end
 
 -- init qb-target for selling spots
-function initSellspotsQbTargets()
+function spawn_seller_npc()
 
     local function spawn_ped(data)
         RequestModel(data.model)
