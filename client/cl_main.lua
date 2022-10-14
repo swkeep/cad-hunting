@@ -21,6 +21,7 @@ local spawnedAnimalsBlips = Config.spawnedAnimalsBlips
 local spawnedAnimalsBlipsConfig = Config.AnimalBlip
 
 
+
 -- ============================
 --      FUNCTIONS
 -- ============================
@@ -50,6 +51,21 @@ local function load_model(model)
     end
 end
 
+DecorRegister("HUNTINGSOURCE", 3)
+
+local function HUNTINGSOURCE(entity)
+    if DecorGetInt(entity, 'HUNTINGSOURCE') == 0 then
+        DecorSetInt(entity, 'HUNTINGSOURCE', PlayerPedId())
+        return true
+    end
+
+    if DecorGetInt(entity, 'HUNTINGSOURCE') ~= PlayerPedId() then
+        return false
+    else
+        return true
+    end
+end
+
 AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
     local model = GetEntityModel(entity)
     local animal = getAnimalMatch(model)
@@ -61,8 +77,13 @@ AddEventHandler('keep-hunting:client:slaughterAnimal', function(entity)
         CoreName.Functions.Notify("You dont have knife.")
         return
     end
+    if not HUNTINGSOURCE(entity) then
+        CoreName.Functions.Notify("Already processed by another person!")
+        return
+    end
     ClearPedTasks(PlayerPedId())
     ToggleSlaughterAnimation(true, entity)
+
     CoreName.Functions.Progressbar("harv_anim", "Slaughtering Animal", Config.SlaughteringSpeed, false,
         false, {
             disableMovement = true,
