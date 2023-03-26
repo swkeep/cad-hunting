@@ -13,7 +13,7 @@ local zone_type
 local baitCooldown = Config.BaitCooldown
 local deployedBaitCooldown = 0
 
--- spwaning timer
+-- spawning timer
 local spawningTime = Config.SpawningTimer
 local startSpawningTimer = 0
 
@@ -238,7 +238,7 @@ RegisterNetEvent('keep-hunting:client:spawnAnimal', function(coord, outPosition,
     end
 
     if not DoesEntityExist(baitAnimal) then
-        print("debug: spwan failed")
+        print("debug: spawn failed")
         return
     end
 
@@ -246,7 +246,7 @@ RegisterNetEvent('keep-hunting:client:spawnAnimal', function(coord, outPosition,
     createThreadAnimalTraveledDistanceToBaitTracker(coord, baitAnimal, indicator)
     createDespawnThread(baitAnimal, was_llegal, coord, indicator)
     putQbTargetOnEntity(baitAnimal)
-    print("debug: spwan success")
+    print("debug: spawn success")
 end)
 
 -- ============================
@@ -361,7 +361,7 @@ local function start()
         spawn_seller_npc()
         createCustomBlips(Config.SellSpots)
         createCustomBlips(Config.HuntingArea)
-        if Config.SlughterEveryAnimal == true then
+        if Config.SlaughterEveryAnimal == true then
             putQbTargetAllOnAnimals()
         end
     end)

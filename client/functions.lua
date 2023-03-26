@@ -99,7 +99,7 @@ function spawn_seller_npc()
     end
 
     for _, spot in pairs(Config.SellSpots) do
-        -- spwan seller npcs
+        -- spawn seller npcs
         local c = vector3(spot.SellerNpc.coords.x, spot.SellerNpc.coords.y, spot.SellerNpc.coords.z - 1.0)
 
         local ped = spawn_ped({

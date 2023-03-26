@@ -5,7 +5,7 @@ Config.DEBUG = false -- make sure it's false
 -- Let players slaughter every animal without bait
 -- only animals spawned by baits give rewards
 -- note: in my tests if it's true you need to restart QB-target first and then keep-hunting afterward
-Config.SlughterEveryAnimal = false
+Config.SlaughterEveryAnimal = false
 
 -- protection system againts players
 -- if hunters have this weapons they can't shoot players with it!
@@ -84,7 +84,7 @@ Config.boneHitMultiplier = {
 Config.Animals = { {
     model = "a_c_deer",
     -- {legal area spawn chance , illegal area spawn chance}
-    spwanRarity = { 20, 25 },
+    spawnRarity = { 20, 25 },
     hash = -664053099,
     -- HOW to use "Loots" element:
     -- { {"ITEMNAME" , Chance , Sell Price} , {"ITEMNAME" , Chance , Sell Price} ,  ....}
@@ -95,42 +95,42 @@ Config.Animals = { {
     Loots = { { "meatdeer", 100, 150 }, { "plastic", 50, 25 } }
 }, {
     model = "a_c_pig",
-    spwanRarity = { 20, 0 },
+    spawnRarity = { 20, 0 },
     hash = -1323586730,
     Loots = { { "meatpig", 100, 150 }, { "plastic" } }
 }, {
     model = "a_c_boar",
-    spwanRarity = { 30, 25 },
+    spawnRarity = { 30, 25 },
     hash = -832573324,
     Loots = { { "meatpig", 100 }, { "plastic", 50 } }
 }, {
     model = "a_c_mtlion",
-    spwanRarity = { 25, 50 },
+    spawnRarity = { 25, 50 },
     hash = 307287994,
     Loots = { { "meatlion", 100, 150 }, { "plastic", 50 } }
 }, {
     model = "a_c_cow",
-    spwanRarity = { 0, 0 },
+    spawnRarity = { 0, 0 },
     hash = -50684386,
     Loots = { { "meatcow", 100, 150 }, { "plastic", 50 } }
 }, {
     model = "a_c_coyote",
-    spwanRarity = { 0, 0 },
+    spawnRarity = { 0, 0 },
     hash = 1682622302,
     Loots = { { "meatcoyote", 100, 150 }, { "plastic", 50 } }
 }, {
     model = "a_c_rabbit_01",
-    spwanRarity = { 0, 0 },
+    spawnRarity = { 0, 0 },
     hash = -541762431,
     Loots = { { "meatrabbit", 100, 150 }, { "plastic", 50 } }
 }, {
     model = "a_c_pigeon",
-    spwanRarity = { 0, 0 },
+    spawnRarity = { 0, 0 },
     hash = 111281960,
     Loots = { { "meatbird", 100, 150 }, { "plastic", 50 } }
 }, {
     model = "a_c_seagull",
-    spwanRarity = { 0, 0 },
+    spawnRarity = { 0, 0 },
     hash = -745300483,
     Loots = { { "meatbird", 100 }, { "plastic", 50 } }
 } }
