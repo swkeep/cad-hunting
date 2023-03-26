@@ -179,9 +179,9 @@ function choiceAnimal(Rarities, was_llegal)
     local temp = {}
     for key, value in pairs(Rarities) do
         if not was_llegal then
-            table.insert(temp, value.spwanRarity[2])
+            table.insert(temp, value.spawnRarity[2])
         else
-            table.insert(temp, value.spwanRarity[1])
+            table.insert(temp, value.spawnRarity[1])
         end
     end
     if temp ~= nil then
